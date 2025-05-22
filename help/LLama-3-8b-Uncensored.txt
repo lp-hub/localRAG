@@ -1,0 +1,34 @@
+https://huggingface.co/mradermacher/LLama-3-8b-Uncensored-GGUF
+
+About
+
+static quants of https://huggingface.co/DevsDoCode/LLama-3-8b-Uncensored
+
+weighted/imatrix quants are available at https://huggingface.co/mradermacher/LLama-3-8b-Uncensored-i1-GGUF
+Usage
+
+If you are unsure how to use GGUF files, refer to one of TheBloke's READMEs for more details, including on how to concatenate multi-part files.
+Provided Quants
+
+(sorted by size, not necessarily quality. IQ-quants are often preferable over similar sized non-IQ quants)
+Link 	Type 	Size/GB 	Notes
+GGUF 	Q2_K 	3.3 	
+GGUF 	Q3_K_S 	3.8 	
+GGUF 	Q3_K_M 	4.1 	lower quality
+GGUF 	Q3_K_L 	4.4 	
+GGUF 	IQ4_XS 	4.6 	
+GGUF 	Q4_K_S 	4.8 	fast, recommended
+GGUF 	Q4_K_M 	5.0 	fast, recommended
+GGUF 	Q5_K_S 	5.7 	
+GGUF 	Q5_K_M 	5.8 	
+GGUF 	Q6_K 	6.7 	very good quality
+GGUF 	Q8_0 	8.6 	fast, best quality
+GGUF 	f16 	16.2 	16 bpw, overkill
+
+And here are Artefact2's thoughts on the matter: https://gist.github.com/Artefact2/b5f810600771265fc1e39442288e8ec9
+FAQ / Model Request
+
+See https://huggingface.co/mradermacher/model_requests for some answers to questions you might have and/or if you want some other model quantized.
+Thanks
+
+I thank my company, nethype GmbH, for letting me use its servers and providing upgrades to my workstation to enable this work in my free time.

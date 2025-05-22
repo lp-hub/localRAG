@@ -1,0 +1,54 @@
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+
+# Logs and runtime
+logs/
+*.log
+
+# Local config / secrets
+config.py
+tree.py
+.env
+*.secret
+*.key
+
+# FAISS / vector store
+faiss_db/
+*.faiss
+index.faiss
+
+# SQLite / local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Jupyter / notebooks
+.ipynb_checkpoints/
+
+# Editor/IDE metadata
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System-specific files
+.DS_Store
+Thumbs.db
+
+# Build / dist
+build/
+dist/
+*.egg-info/
+
+# Directory tree
+.git

@@ -1,0 +1,42 @@
+The Model Learns Nothing. Ever.
+
+    The model does not “learn” from FAISS, and it does not retain anything when the FAISS index is replaced. All knowledge injection is temporary and query-based, not permanent.
+
+
+In a RAG system (using FAISS + LLM like GPT or LLaMA):
+
+    Your FAISS DB stores vector embeddings of document chunks.
+
+    At query time:
+
+        You ask a question.
+
+        FAISS retrieves the most semantically relevant chunks.
+
+        These chunks are injected into the prompt as context.
+
+    The LLM uses that temporary context to generate a response.
+
+    The model is still frozen. It only "knows" the chunked information during that one generation.
+
+
+So What Happens When You Replace the FAISS DB?
+
+    You lose access to all the previous chunks.
+
+    The model instantly forgets anything that was only available through that old index.
+
+    There is no residual memory or accumulation.
+
+This is not a bug — it's just how stateless inference with static LLMs works.
+
+
+Your model doesn't "gain knowledge" from FAISS — it only borrows context from it when you query. Once that index is gone, so is the knowledge.
+
+If you want persistence, you need to:
+
+    Keep the FAISS DB alive and up to date
+
+    Track what was added and when
+
+    Optionally, build a database abstraction layer (e.g., with SQLite metadata or manifest files)

@@ -1,0 +1,75 @@
+Minimal SQLite-backed RAG boilerplate structured in a db/ folder. It includes:
+
+    db.py – database schema, inserts, queries, API
+
+    modified_retriever.py – clean chunker with deduplication by hash
+
+    filtering_cli.py – filetype/date filtering
+
+    admin.py – manual view/delete entries
+
+    ui.py - Gradio interface for metadata-based browsing
+
+Usage Flow
+
+    Use chunk_documents() from modified_retriever.py in your main pipeline.
+
+    It uses db.py internally — no need to inject SQL into the rest of your code.
+
+    For admin tasks or filtering, call filtering_cli.py or admin.py.        
+
+You can now call chunk_documents(...) in your main script and everything else (metadata, hash check, db writes) is handled.
+
+
+Why SQLite for Local RAG Systems?
+
+1. Zero Setup
+
+    Just a .db file. No server, no daemon, no ports.
+
+    Works out of the box with Python’s sqlite3 module.
+
+    ✅ Ideal for personal/local projects — books, notes, offline tools.
+
+2. Atomic & Portable
+
+    Easy to copy, version, or back up.
+
+    Can store it alongside your vector index (faiss_index/, metadata.db).
+
+    ✅ Sync it with Git, Dropbox, or rsync.
+
+3. Structured Queries are Simple
+
+    Want to find all files ingested in the last 7 days? Easy:
+
+    SELECT path FROM documents WHERE timestamp > ...
+
+    Want to join with vector metadata? Also trivial.
+
+    ✅ Good for managing document-level and chunk-level info.
+
+4. Reliable for Small to Medium Scale
+
+    Handles thousands of records easily.
+
+    You’re not running a billion-row database.
+
+
+Say you have a folder with books (.pdf, .epub, .txt) and a FAISS index. Use SQLite to store:
+
+    File path
+
+    Title/author (if extracted)
+
+    Hash or fingerprint
+
+    Timestamp added
+
+    Chunk count
+
+    Embedding config used
+
+    Clean flag / validation flag
+
+Use SQLite if you're building a fast, reliable, local-first knowledge base — especially for personal or offline use.
