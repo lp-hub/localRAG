@@ -3,6 +3,7 @@ import re
 import os
 import logging
 import difflib
+from pathlib import Path
 from spellchecker import SpellChecker
 
 spell = SpellChecker()
@@ -10,18 +11,9 @@ spell = SpellChecker()
 Creation of default normalization_map.json
 To update it constantly, call add_normalization_entry(...) in chunker
 '''
-# === Setup logging ===
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)  # Set to INFO or WARNING to reduce verbosity if needed
-
-ch = logging.StreamHandler()
-formatter = logging.Formatter('%(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
-
 # === Constants ===
-BASE_DIR = os.path.dirname(__file__)
-JSON_PATH = os.path.abspath(os.path.join(BASE_DIR, "../../db/normalization_map.json"))
+BASE_DIR = Path(__file__).parent
+JSON_PATH = (BASE_DIR / "../../db/normalization_map.json").resolve()
 DEFAULT_STRUCTURE = {
     "ligatures": {
         "ﬁ": "fi",
@@ -50,36 +42,47 @@ DEFAULT_STRUCTURE = {
     }
 }
 
-# === File Handling ===
-def ensure_normalization_json(path: str = JSON_PATH, force: bool = False):
-    try:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+# === Logging ===
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+formatter = logging.Formatter('%(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
-        if force or not os.path.isfile(path):
+
+# === File Handling ===
+def ensure_normalization_json(path: Path = JSON_PATH, force=False):
+    if not force and not path.exists():
+        raise RuntimeError(f"[Abort] normalization_map.json missing: {path}")
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if not path.exists():
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(DEFAULT_STRUCTURE, f, indent=4, ensure_ascii=False)
             logger.info(f"Normalization map created at {path}")
         else:
-            logger.debug(f"Normalization map already exists at {path}, skipping creation.")
+            logger.info(f"Normalization map already exists at {path}")  #TODO>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     except Exception as e:
-        logger.error(f"Error creating normalization map at {path}: {e}")
+        logger.error(f"Error ensuring normalization map at {path}: {e}")
 
-def load_normalization_map(path: str = JSON_PATH, create_if_missing: bool = True) -> dict:
+def load_normalization_map(path: Path = JSON_PATH, create_if_missing: bool = False) -> dict:
     if create_if_missing:
         ensure_normalization_json(path)
-    elif not os.path.exists(path):
+    elif not path.exists():
         logger.warning(f"Normalization map not found at {path}")
+        print("Normalization map missing. Run with --rebuild-db to generate it.")
         return {}
     try:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        logger.debug(f"Normalization map loaded from {path}")
+        logger.info(f"Normalization map loaded from {path}")
         return data
     except Exception as e:
         logger.error(f"Error loading normalization map from {path}: {e}")
         return {}
 
-def save_normalization_map(data: dict, path: str = JSON_PATH):
+def save_normalization_map(data: dict, path: Path = JSON_PATH):
     try:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
@@ -87,16 +90,12 @@ def save_normalization_map(data: dict, path: str = JSON_PATH):
     except Exception as e:
         logger.error(f"Error saving normalization map to {path}: {e}")
 
-# === Application ===
+# === Apply Normalization ===
 def apply_normalization(text: str, norm_map: dict) -> str:
-    # Apply literal replacements
-    for category_name in ["ligatures", "punctuation"]:
-        category = norm_map.get(category_name, {})
-        for bad, good in category.items():
+    for cat in ["ligatures", "punctuation"]:
+        for bad, good in norm_map.get(cat, {}).items():
             text = text.replace(bad, good)
-    # Apply regex replacements for OCR artifacts
-    ocr_artifacts = norm_map.get("ocr_artifacts", {})
-    for pattern, repl in ocr_artifacts.items():
+    for pattern, repl in norm_map.get("ocr_artifacts", {}).items():
         text = re.sub(pattern, repl, text)
     return text
 

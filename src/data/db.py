@@ -1,49 +1,62 @@
 import os
-import sqlite3
+from pathlib import Path
 import shutil
+import sqlite3
 import sys
 from datetime import datetime
-from pathlib import Path
-
 from data.jsonhandler import ensure_normalization_json, JSON_PATH
 
 DB_PATH = Path("db/metadata.db")
 
-def is_metadata_db_empty():
+def is_metadata_db_empty() -> bool:
+    """Check if metadata.db exists and contains chunks."""
     if not DB_PATH.exists():
         return True
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
     try:
-        cur.execute("SELECT COUNT(*) FROM chunks")
-        return cur.fetchone()[0] == 0
+        with sqlite3.connect(DB_PATH) as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT COUNT(*) FROM chunks")
+            return cur.fetchone()[0] == 0
     except sqlite3.OperationalError:
-        # Table missing or malformed DB
         return True
 
 def backup_old_db():
-    if DB_PATH.exists():
+    """Back up the existing metadata.db before overwriting."""
+    if not DB_PATH.exists():
+        print("[Warn] backup_old_db() called, but metadata.db does not exist.")
+        return
+    try:
         timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         backup_path = DB_PATH.with_name(f"metadata_{timestamp}.db")
         shutil.move(DB_PATH, backup_path)
-        print(f"Old DB backed up as: {backup_path}")
+        print(f"[Backup] Old DB moved to: {backup_path}")
+    except Exception as e:
+        print(f"[Error] Failed to back up old DB: {e}")
 
-def init_db(rebuild=False):
+def init_db(rebuild=False) -> sqlite3.Connection:
+    """Initialize the SQLite database and schema."""
+    if not JSON_PATH.exists() and not rebuild:
+        print(f"[Error] Normalization map not found at {JSON_PATH}")
+        print("[Hint] Run with --rebuild-db to generate it.")
+        sys.exit(1)
+
     if rebuild:
         ensure_normalization_json(force=True)
-    else:
-        if not os.path.exists(JSON_PATH):
-            print("Normalization map missing. Run with --rebuild-db to generate it.")
-            sys.exit(1)                            
 
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)  # ensure DB exists
-    if rebuild and DB_PATH.exists():  # only backup if rebuild=True
-        backup_old_db()
-        if DB_PATH.exists():  # ensure DB still exists before unlink
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    if rebuild:
+        if DB_PATH.exists():
             try:
-                DB_PATH.unlink()  # delete DB if rebuild=True
+                backup_old_db()
+                DB_PATH.unlink()
             except FileNotFoundError:
-                pass
+                print("[Warn] Tried to delete metadata.db, but it was already missing.")
+            except Exception as e:
+                print(f"[Error] Unexpected error while deleting DB: {e}")
+                sys.exit(1)
+        else:
+            print("[Info] No existing DB found — skipping backup and deletion.")
 
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()

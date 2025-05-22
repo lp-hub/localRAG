@@ -77,7 +77,7 @@ Your computer may not be powerful enough to run some models.
 
 localRAG
 ├── db
-│   └── normalization_map.json
+│   └── normalization_map.template.json
 ├── faiss_db
 ├── help
 │   ├── learning.txt
@@ -92,22 +92,26 @@ localRAG
 │   │   ├── __init__.py
 │   │   ├── admin.py
 │   │   ├── db.py
+│   │   ├── filter.py
 │   │   ├── filtering_cli.py
 │   │   ├── jsonhandler.py
-│   │   ├── ocr_errors.py
-│   │   ├── provenance.py
 │   │   └── ui.py
-│   ├── chunker.py
+│   ├── ingestion
+│   │   ├── __pycache__
+│   │   ├── chunker.py
+│   │   ├── formatter.py
+│   │   └── ocr_errors.py
+│   ├── knowledge
+│   │   ├── __pycache__
+│   │   ├── provenance.py
+│   │   ├── retriever.py
+│   │   └── store.py
 │   ├── config.template.py
-│   ├── formatter.py
 │   ├── llm.py
 │   ├── logger.py
 │   ├── main.py
-│   ├── retriever.py
-│   ├── store.py
 │   └── webui.py
 ├── venv
 ├── .gitignore
-├── .pylintrc
 ├── README.md
 └── requirements.txt

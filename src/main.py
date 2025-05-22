@@ -12,15 +12,8 @@ from knowledge.retriever import chunk_documents
 from knowledge.store import create_vector_store, load_vector_store
 from ingestion.chunker import split_into_chunks
 
-## DEBUG TEST: add an entry to normalization map
-#from data.jsonhandler import add_normalization_entry
-#add_normalization_entry("ocr_artifacts", r"\bfoo\b", "bar")
-## DEBUG TEST: add an entry to normalization map
-
-# === Main Script Execution ===
-
 def setup_retriever():
-    args = parse_args()
+    args = parse_args()      
     init_db(rebuild=args.rebuild_db)
     embedding = HuggingFaceEmbeddings(model_name=EMBED_MODEL_NAME)
     print("Embedding dimension:", len(embedding.embed_query("test")))
