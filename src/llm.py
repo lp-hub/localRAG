@@ -7,7 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 from config import DATA_DIR, DB_DIR, MODEL_PATH, LLAMA_CPP_PARAMS
-from db.provenance import run_rag_with_provenance
+from knowledge.provenance import run_rag_with_provenance
 
 print("llama-cpp-python version:", llama_cpp.__version__)
 

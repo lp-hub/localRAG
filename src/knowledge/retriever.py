@@ -4,7 +4,7 @@ import string
 import fitz  # PyMuPDF
 
 from pathlib import Path
-from db import insert_document, insert_chunks, get_existing_hashes
+from data import insert_document, insert_chunks, get_existing_hashes
 from config import EMBED_MODEL_NAME
 from langchain.schema import Document
 

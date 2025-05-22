@@ -1,4 +1,4 @@
-from db import init_db
+from data import init_db
 
 def list_documents():
     conn = init_db()

@@ -17,6 +17,7 @@ ffmpy==0.5.0
 filelock==3.18.0
 frozenlist==1.6.0
 fsspec==2025.5.0
+ftfy==6.3.1
 gradio==5.30.0
 gradio_client==1.10.1
 greenlet==3.2.2
@@ -75,6 +76,7 @@ pydub==0.25.1
 Pygments==2.19.1
 PyMuPDF==1.25.5
 pypdf==5.5.0
+pyspellchecker==0.8.3
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 python-multipart==0.0.20
@@ -117,6 +119,7 @@ typing_extensions==4.13.2
 tzdata==2025.2
 urllib3==2.4.0
 uvicorn==0.34.2
+wcwidth==0.2.13
 websockets==15.0.1
 yarl==1.20.0
 zstandard==0.23.0

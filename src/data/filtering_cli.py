@@ -1,5 +1,5 @@
 import sqlite3
-from db import init_db
+from data import init_db
 
 def query_documents(filetype=None, date_after=None, skip_tags=None):
     conn = init_db()

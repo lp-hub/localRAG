@@ -1,0 +1,27 @@
+{
+    "ligatures": {
+        "ﬁ": "fi",
+        "ﬂ": "fl",
+        "ﬀ": "ff",
+        "ﬃ": "ffi",
+        "ﬄ": "ffl"
+    },
+    "punctuation": {
+        "–": "-",
+        "—": "-",
+        "‘": "'",
+        "’": "'",
+        "“": "\"",
+        "”": "\"",
+        "…": "..."
+    },
+    "ocr_artifacts": {
+        "\\bfa9ade\\b": "façade",
+        "\\bmedireval\\b": "mediaeval",
+        "\\bsub- sequent\\b": "subsequent",
+        "\\bHermetic A rcanum\\b": "Hermetic Arcanum",
+        "\\bAutJuw\\b": "Author",
+        "\\bTableaz£ de l'inconstance\\b": "Tableau de l'inconstance",
+        "\\bPhysictZ RestituttZ\\b": "Physica Restituta"
+    }
+}

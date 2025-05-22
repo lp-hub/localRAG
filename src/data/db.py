@@ -1,7 +1,11 @@
+import os
 import sqlite3
 import shutil
+import sys
 from datetime import datetime
 from pathlib import Path
+
+from data.jsonhandler import ensure_normalization_json, JSON_PATH
 
 DB_PATH = Path("db/metadata.db")
 
@@ -25,6 +29,13 @@ def backup_old_db():
         print(f"Old DB backed up as: {backup_path}")
 
 def init_db(rebuild=False):
+    if rebuild:
+        ensure_normalization_json(force=True)
+    else:
+        if not os.path.exists(JSON_PATH):
+            print("Normalization map missing. Run with --rebuild-db to generate it.")
+            sys.exit(1)                            
+
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)  # ensure DB exists
     if rebuild and DB_PATH.exists():  # only backup if rebuild=True
         backup_old_db()

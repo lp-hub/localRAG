@@ -5,7 +5,7 @@ import time
 
 from config import MODEL_PATH
 from main import setup_retriever
-from db.provenance import run_rag_with_provenance
+from knowledge.provenance import run_rag_with_provenance
 
 retriever = None
 

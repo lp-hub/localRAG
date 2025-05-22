@@ -1,5 +1,5 @@
 import gradio as gr
-from db import init_db
+from data import init_db
 
 def list_titles_by_type(filetype):
     conn = init_db()

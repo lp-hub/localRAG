@@ -5,12 +5,17 @@ import os
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from config import EMBED_MODEL_NAME
-from db.db import init_db, is_metadata_db_empty
+from data.db import init_db, is_metadata_db_empty
 from llm import run_rag, parse_args
 from logger import log_exception
-from retriever import chunk_documents
-from store import create_vector_store, load_vector_store
-from chunker import split_into_chunks
+from knowledge.retriever import chunk_documents
+from knowledge.store import create_vector_store, load_vector_store
+from ingestion.chunker import split_into_chunks
+
+## DEBUG TEST: add an entry to normalization map
+#from data.jsonhandler import add_normalization_entry
+#add_normalization_entry("ocr_artifacts", r"\bfoo\b", "bar")
+## DEBUG TEST: add an entry to normalization map
 
 # === Main Script Execution ===
 
@@ -23,13 +28,12 @@ def setup_retriever():
     if args.rebuild_db or is_metadata_db_empty() or not os.path.exists(os.path.join(args.db_dir, "index.faiss")):
         chunks = chunk_documents(args.data_dir, split_into_chunks)
         if not chunks:
-            raise ValueError("No document chunks found. Check your data directory or chunking logic.")
+            raise ValueError("No chunks found. Check your data directory or chunking logic.")
         return create_vector_store(args.db_dir, chunks, embedding)
     else:
         return load_vector_store(args.db_dir, embedding)
 
 def main():
-    global retriever
     args = parse_args()
     retriever = setup_retriever()
 

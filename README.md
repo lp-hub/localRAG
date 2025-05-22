@@ -14,7 +14,7 @@ git clone https://github.com/lp-hub/localRAG.git && cd localRAG
 
 sudo apt update
 
-sudo apt install python3 python3.12-venv build-essential cmake
+sudo apt install python3 python3.12-venv build-essential cmake sqlite3
 
 https://visualstudio.microsoft.com/visual-cpp-build-tools/ for Windows, whatever...
 
@@ -30,7 +30,7 @@ deactivate # after usig RAG
 
 pip install --upgrade pip
 
-pip install faiss-cpu gradio langchain langchain-community langchain-huggingface pathspec pymupdf pypdf sentence-transformers sqlite-utils tiktoken
+pip install faiss-cpu ftfy gradio langchain langchain-community langchain-huggingface pathspec pymupdf pypdf pyspellchecker sentence-transformers sqlite-utils tiktoken
 
 5. Install llama-cpp-python with CUDA support
 
@@ -77,6 +77,7 @@ Your computer may not be powerful enough to run some models.
 
 localRAG
 ├── db
+│   └── normalization_map.json
 ├── faiss_db
 ├── help
 │   ├── learning.txt
@@ -86,12 +87,14 @@ localRAG
 ├── scripts
 ├── src
 │   ├── __pycache__
-│   ├── db
+│   ├── data
 │   │   ├── __pycache__
 │   │   ├── __init__.py
 │   │   ├── admin.py
 │   │   ├── db.py
 │   │   ├── filtering_cli.py
+│   │   ├── jsonhandler.py
+│   │   ├── ocr_errors.py
 │   │   ├── provenance.py
 │   │   └── ui.py
 │   ├── chunker.py
@@ -105,5 +108,6 @@ localRAG
 │   └── webui.py
 ├── venv
 ├── .gitignore
+├── .pylintrc
 ├── README.md
 └── requirements.txt

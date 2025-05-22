@@ -16,6 +16,7 @@ logs/
 *.log
 
 # Local config / secrets
+normalization_map.json
 config.py
 tree.py
 .env
