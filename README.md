@@ -54,7 +54,7 @@ mkdir -p models && wget https://huggingface.co/mradermacher/LLama-3-8b-Uncensore
 Place .pdf, .txt, .md, .epub, etc., into your data/ folder.
 Supported file types are automatically handled by the loader.
 
-8. Configure .env
+8. Create and onfigure .env
 ======================================================================
 
 DATA_DIR=/directory_with_files DB_DIR=/faiss_db/ MODEL_PATH=/AI_model.gguf
