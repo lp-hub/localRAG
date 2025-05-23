@@ -1,4 +1,4 @@
-# localRAG
+        # localRAG
 
 ## Free, local, open-source RAG with SQLite & FAISS
 
@@ -14,7 +14,7 @@ git clone https://github.com/lp-hub/localRAG.git && cd localRAG
 
 sudo apt update
 
-sudo apt install python3 python3.12-venv build-essential cmake sqlite3
+sudo apt install python3 python3.12-venv build-essential cmake sqlite3 djvulibre-bin
 
 https://visualstudio.microsoft.com/visual-cpp-build-tools/ for Windows, whatever...
 
@@ -28,9 +28,9 @@ deactivate # after usig RAG
 
 4. Install Python dependencies
 
-pip install --upgrade pip
+pip install --upgrade pip && pip3 install striprtf
 
-pip install faiss-cpu ftfy gradio langchain langchain-community langchain-huggingface pathspec pymupdf pypdf pyspellchecker sentence-transformers sqlite-utils tiktoken
+pip install faiss-cpu ftfy gradio langchain langchain-community langchain-huggingface pathspec pymupdf pypdf pyrtf-ng pyspellchecker python-docx python-dotenv rapidfuzz sentence-transformers sqlite-utils symspellpy tiktoken unstructured
 
 5. Install llama-cpp-python with CUDA support
 
@@ -47,11 +47,9 @@ mkdir -p models && wget https://huggingface.co/mradermacher/LLama-3-8b-Uncensore
 Place .pdf, .txt, .md, .epub, etc., into your data/ folder.
 Supported file types are automatically handled by the loader.
 
-8. Rename config.template.py to config.py and configure
+8. Configure .env
 
-DATA_DIR = '/directory_with_files'
-DB_DIR = "/faiss_db/"
-MODEL_PATH = "/AI_model.gguf"
+DATA_DIR=/directory_with_files DB_DIR=/faiss_db/ MODEL_PATH=/AI_model.gguf
 
 #### Usage
 
@@ -85,10 +83,10 @@ localRAG
 │   └── SQLite.txt
 ├── logs
 ├── scripts
+│   ├── ocr2map.py
+│   └── tree.py
 ├── src
-│   ├── __pycache__
 │   ├── data
-│   │   ├── __pycache__
 │   │   ├── ui
 │   │   │   ├── admin.py
 │   │   │   ├── filtering_cli.py
@@ -96,16 +94,11 @@ localRAG
 │   │   ├── __init__.py
 │   │   ├── db.py
 │   │   ├── filter.py
-│   │   ├── jsonhandler.py
-│   │   ├── ocr_updater.py.py
-│   │   └── rebuild_normalization_map.py
+│   │   └── jsonhandler.py
 │   ├── ingestion
-│   │   ├── __pycache__
 │   │   ├── chunker.py
-│   │   ├── formatter.py
-│   │   └── ocr_errors.py
+│   │   └── formatter.py
 │   ├── knowledge
-│   │   ├── __pycache__
 │   │   ├── provenance.py
 │   │   ├── retriever.py
 │   │   └── store.py

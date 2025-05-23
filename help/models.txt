@@ -1,0 +1,40 @@
+1. Embedding Model
+
+    Purpose: Converts text (sentences, paragraphs) 
+    into fixed-length vectors (embeddings).
+
+    Use case: These embeddings are used for semantic 
+    search, similarity comparison, or retrieval tasks 
+    (e.g., finding the most relevant documents).
+
+    Examples: "BAAI/bge-m3", "intfloat/multilingual-e5-small".
+
+    Output: A numeric vector (e.g., 768 or 1024 dimensions) 
+    that captures the meaning of the text.
+
+    Runs on: Usually CPU or GPU, but typically lighter and 
+    faster than large language models.
+
+    Role in pipeline: Used in FAISS or other vector 
+    databases to index and retrieve documents based on 
+    semantic similarity.
+
+2. LLaMA 3
+
+    Purpose: A large language model (LLM) that generates 
+    text, answers questions, or completes prompts.
+
+    Use case: Given a question plus context 
+    (e.g., retrieved documents), it generates 
+    a coherent, human-like answer.
+
+    Model type: Quantized 8-bit GGUF format 
+    for efficient inference.
+
+    Output: Natural language text.
+
+    Runs on: Requires GPU for efficient inference.
+
+    Role in pipeline: After retrieval by 
+    embeddings + vector search, this model reads 
+    the retrieved info and generates answers or summaries.

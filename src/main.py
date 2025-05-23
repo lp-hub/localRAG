@@ -1,5 +1,3 @@
-__author__ = "https://github.com/lp-hub/localRAG.git"
-
 import os
 
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -16,10 +14,12 @@ def setup_retriever():
     args = parse_args()      
     init_db(rebuild=args.rebuild_db)
     embedding = HuggingFaceEmbeddings(model_name=EMBED_MODEL_NAME)
+    print("Loading model:", EMBED_MODEL_NAME)
     print("Embedding dimension:", len(embedding.embed_query("test")))
 
     if args.rebuild_db or is_metadata_db_empty() or not os.path.exists(os.path.join(args.db_dir, "index.faiss")):
-        chunks = chunk_documents(args.data_dir, split_into_chunks)
+        chunks = chunk_documents(args.data_dir, lambda text: split_into_chunks(text, update_map=args.rebuild_db))
+
         if not chunks:
             raise ValueError("No chunks found. Check your data directory or chunking logic.")
         return create_vector_store(args.db_dir, chunks, embedding)

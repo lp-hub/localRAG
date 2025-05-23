@@ -102,13 +102,13 @@ def insert_document(path, title, hash_, source_type, embedding_model):
     conn.commit()
     return cur.lastrowid
 
-def insert_chunks(document_id, chunks):
+def insert_chunks(doc_id, chunks: list[str] | list[tuple[str, dict]]):
     conn = init_db()
     cur = conn.cursor()
     cur.executemany('''
         INSERT INTO chunks (document_id, chunk_index, content)
         VALUES (?, ?, ?)
-    ''', [(document_id, i, chunk) for i, chunk in enumerate(chunks)])
+    ''', [(doc_id, i, chunk) for i, chunk in enumerate(chunks)])
     conn.commit()
 
 def fetch_metadata_by_content(content_substring):

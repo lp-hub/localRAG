@@ -15,7 +15,7 @@ def normalize_unicode(text: str) -> str:
     text = unicodedata.normalize("NFKC", text)
     return apply_normalization(text, normalization_rules)
 
-# Export to chunker >>>
+# === Export to chunker >>>
 def clean_text(raw: str) -> str:
     print(f"[Cleaning] Input length: {len(raw)}")
     text = normalize_unicode(raw)

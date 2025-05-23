@@ -1,22 +1,30 @@
-DATA_DIR = '/directory_with_files'
-DB_DIR = "/faiss_db/"
-MODEL_PATH = "/AI_model.gguf"
+from dotenv import load_dotenv
+import os
 
-EMBED_MODEL_NAME = "BAAI/bge-small-en"
+load_dotenv()
+
+DATA_DIR = os.getenv("DATA_DIR")
+DB_DIR = os.getenv("DB_DIR")
+MODEL_PATH = os.getenv("MODEL_PATH")
+
+EMBED_MODEL_NAME = "intfloat/multilingual-e5-small" # FAISS and LangChain's VectorstoreRetriever
+                                # "intfloat/multilingual-e5-small" - 100 languages, compatible but basic
+                                # "BAAI/bge-small-en" - for English-only documents
+GARBAGE_THRESHOLD = 0.7         # def chunk_documents(...) in retriever.py
 
 LLAMA_CPP_PARAMS = {
     "model_path": MODEL_PATH,
-    "temperature": 0.8,       # Add creative variation
-    "top_p": 0.8,             # Nucleus sampling for controlled randomness
-    "top_k": 40,              # Restrict to top-K tokens
-    "repeat_penalty": 1.1,    # Discourage repetition
-    "n_ctx": 4096,            # The number of tokens in the context
-    "n_gpu_layers": 35,       # To fit GPU memory
+    "temperature": 0.8,         # Add creative variation
+    "top_p": 0.8,               # Nucleus sampling for controlled randomness
+    "top_k": 40,                # Restrict to top-K tokens
+    "repeat_penalty": 1.1,      # Discourage repetition
+    "n_ctx": 4096,              # The number of tokens in the context
+    "n_gpu_layers": 35,         # To fit GPU memory
     "f16_kv": True,
     "use_mlock": False,
     "use_mmap": True,
     "verbose": True,
-    "n_threads": 12            # Tune for CPU parallelism if no GPU
+    "n_threads": 12             # Tune for CPU parallelism if no GPU
 }
 
 # CHUNK_SIZE controls how large each document segment is (in tokens or characters depending on the loader).

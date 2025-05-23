@@ -1,4 +1,7 @@
 # Ignore Python cache
+.pytest_cache/
+.mypy_cache/
+__pypackages__/
 __pycache__/
 *.py[cod]
 *.pyo
@@ -16,9 +19,9 @@ logs/
 *.log
 
 # Local config / secrets
+scripts/
 normalization_map.json
 config.py
-tree.py
 .env
 *.secret
 *.key
@@ -27,6 +30,9 @@ tree.py
 faiss_db/
 *.faiss
 index.faiss
+
+# LangChain
+.langchain/
 
 # SQLite / local databases
 *.db
@@ -50,6 +56,3 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
-
-# Directory tree
-.git
