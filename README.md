@@ -89,13 +89,16 @@ localRAG
 │   ├── __pycache__
 │   ├── data
 │   │   ├── __pycache__
+│   │   ├── ui
+│   │   │   ├── admin.py
+│   │   │   ├── filtering_cli.py
+│   │   │   └── ui.py
 │   │   ├── __init__.py
-│   │   ├── admin.py
 │   │   ├── db.py
 │   │   ├── filter.py
-│   │   ├── filtering_cli.py
 │   │   ├── jsonhandler.py
-│   │   └── ui.py
+│   │   ├── ocr_updater.py.py
+│   │   └── rebuild_normalization_map.py
 │   ├── ingestion
 │   │   ├── __pycache__
 │   │   ├── chunker.py

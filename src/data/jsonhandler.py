@@ -60,9 +60,7 @@ def ensure_normalization_json(path: Path = JSON_PATH, force=False):
         if not path.exists():
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(DEFAULT_STRUCTURE, f, indent=4, ensure_ascii=False)
-            logger.info(f"Normalization map created at {path}")
-        else:
-            logger.info(f"Normalization map already exists at {path}")  #TODO>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            logger.info(f"Normalization map created at {path}")   
     except Exception as e:
         logger.error(f"Error ensuring normalization map at {path}: {e}")
 
@@ -71,7 +69,7 @@ def load_normalization_map(path: Path = JSON_PATH, create_if_missing: bool = Fal
         ensure_normalization_json(path)
     elif not path.exists():
         logger.warning(f"Normalization map not found at {path}")
-        print("Normalization map missing. Run with --rebuild-db to generate it.")
+        print("Run with --rebuild-db to generate it.")
         return {}
     try:
         with open(path, "r", encoding="utf-8") as f:
