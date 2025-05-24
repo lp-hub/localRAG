@@ -43,22 +43,29 @@ def init_db(rebuild=False) -> sqlite3.Connection:
     if rebuild:
         ensure_normalization_json(force=True)
 
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True) # create db directory
+
+    db_already_exists = DB_PATH.exists()
 
     if rebuild:
-        if DB_PATH.exists():
+        if db_already_exists:
             try:
                 backup_old_db()
-                DB_PATH.unlink()
+                DB_PATH.unlink() # Might raise FileNotFoundError if backup moved it
+                print("[Info] Deleted existing metadata.db")
             except FileNotFoundError:
                 print("[Warn] Tried to delete metadata.db, but it was already missing.")
             except Exception as e:
                 print(f"[Error] Unexpected error while deleting DB: {e}")
-                sys.exit(1)
+                sys.exit(1) # File is now gone
         else:
             print("[Info] No existing DB found — skipping backup and deletion.")
-
+    
     conn = sqlite3.connect(DB_PATH)
+    if db_already_exists:
+            print(f"Loaded existing metadata.db")
+    else:
+            print(f"[Info] Creating new metadata.db")  
     cur = conn.cursor()
 
     cur.execute('''
@@ -102,13 +109,13 @@ def insert_document(path, title, hash_, source_type, embedding_model):
     conn.commit()
     return cur.lastrowid
 
-def insert_chunks(doc_id, chunks: list[str] | list[tuple[str, dict]]):
+def insert_chunks(doc_id, chunks: list[tuple[str, dict]]):
     conn = init_db()
     cur = conn.cursor()
     cur.executemany('''
         INSERT INTO chunks (document_id, chunk_index, content)
         VALUES (?, ?, ?)
-    ''', [(doc_id, i, chunk) for i, chunk in enumerate(chunks)])
+    ''', [(doc_id, i, chunk_text) for i, (chunk_text, _) in enumerate(chunks)])
     conn.commit()
 
 def fetch_metadata_by_content(content_substring):

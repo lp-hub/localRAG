@@ -2,41 +2,19 @@ import hashlib
 import string
 
 from pathlib import Path
-from data import insert_document, insert_chunks, get_existing_hashes
-from datetime import datetime
+from data import insert_document,insert_chunks, get_existing_hashes
 from config import EMBED_MODEL_NAME, GARBAGE_THRESHOLD
 from langchain.schema import Document
 
-from ingestion.chunker import (
-    PyPDFLoader,
-    SafeTextLoader,
-    UnstructuredMarkdownLoader,
-    UnstructuredWordDocumentLoader,
-    UnstructuredEPubLoader,
-    UnstructuredDocLoader,
-    RTFLoader,
-    DidjvuLoader,
-    CHMLoader,
-)
+from ingestion.chunker import detect_and_load_text
 
-def detect_and_load_text(file_path: str) -> list[Document] | None:
-    ext = Path(file_path).suffix.lower()
-    loader_cls = {
-        ".pdf": PyPDFLoader,
-        ".txt": SafeTextLoader,
-        ".md": UnstructuredMarkdownLoader,
-        ".docx": UnstructuredWordDocumentLoader,
-        ".epub": UnstructuredEPubLoader,
-        ".doc": UnstructuredDocLoader,
-        ".rtf": RTFLoader,
-        ".djvu": DidjvuLoader,
-        ".chm": CHMLoader,
-    }.get(ext)
-    return loader_cls(file_path).load() if loader_cls else None
-
+#For large files, consider reading in chunks:
 def hash_file(file_path):
-    return hashlib.md5(Path(file_path).read_bytes()).hexdigest()
-
+    h = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest() 
 
 def is_good_chunk(chunk: str) -> bool:
     chunk = chunk.strip()
@@ -80,7 +58,9 @@ def is_trash(chunk):
         return True
     return False
 
-def chunk_documents(data_dir, split_func):
+def chunk_documents(data_dir: str, split_func: callable) -> list[Document]:
+    """Load files from data_dir, extract and chunk text, filter trash,
+    and return list of Document objects with metadata."""
     docs = []
     existing_hashes = get_existing_hashes()
 
@@ -95,25 +75,11 @@ def chunk_documents(data_dir, split_func):
 
         try:
             docs_from_loader = detect_and_load_text(str(path))
+            print(f"[DEBUG] Running OCR artifact detection: {path.stem}")
             if not docs_from_loader:
                 print(f"[SKIP] Unsupported file type: {path}")
                 continue
-            # Flatten all content into one string if needed
             text = "\n\n".join(doc.page_content for doc in docs_from_loader)
-
-            # Optional: export extracted raw text to .txt
-            # logs/book_20250523_174501.txt
-            export_raw = True  # toggle this
-            if export_raw:
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                export_dir = Path("logs")
-                export_path = export_dir / f"{path.stem}_{timestamp}.txt"
-                export_dir.mkdir(parents=True, exist_ok=True)
-                with export_path.open("w", encoding="utf-8") as f:
-                    f.write(text) 
-            # If you're dealing with noisy formats (e.g. .djvu, .chm, OCR .pdfs), 
-            # it's worth exporting once to build a cleaner version.
-
         except Exception as e:
             print(f"[ERROR] Cannot load file {path}: {e}")
             continue
@@ -122,16 +88,15 @@ def chunk_documents(data_dir, split_func):
         if not chunks:
             print(f"[SKIP] No chunks extracted: {path}")
             continue
-        
+
         print(f"Indexed: {path} | Chunks: {len(chunks)}")
-        
+
         trash_count = sum(1 for chunk in chunks if is_trash(chunk))
-        if len(chunks) == 0 or trash_count / len(chunks) > GARBAGE_THRESHOLD:
+        if trash_count / len(chunks) > GARBAGE_THRESHOLD:
             print(f"[SKIP] File mostly garbage: {path} ({trash_count}/{len(chunks)} chunks)")
             continue
-        
 
-        # Filter trash chunks out and add skip_ocr_fix metadata
+        # Filter trash chunks and add OCR metadata
         filtered_chunks = []
         for chunk in chunks:
             if is_trash(chunk):
@@ -139,28 +104,15 @@ def chunk_documents(data_dir, split_func):
             skip_ocr_fix = is_good_chunk(chunk)
             filtered_chunks.append((chunk, {"skip_ocr_fix": skip_ocr_fix}))
 
-
-        for idx, chunk in enumerate(chunks):
-            if is_good_chunk(chunk):
-                 # Skip OCR fixes on this chunk — it's already good quality
-                skip_ocr_fix = True
-            else:
-                skip_ocr_fix = False
-                                # Run OCR fix suggestion logic here, e.g. logging
-                # [LOG] Added to log: [OCR] Suggest fix: 'theogenesis' → 'thermogenesis'
-
         doc_id = insert_document(
             str(path), path.stem, file_hash, path.suffix[1:], EMBED_MODEL_NAME
         )
 
         accepted = 0
+        final_chunks = []
         for idx, (chunk, metadata) in enumerate(filtered_chunks): 
-            page_num = "?"  # If you later add page data, update here
+            page_num = "?" # update page data here if needed
             chunk = ' '.join(chunk.split())
-            if is_trash(chunk):
-                print(f"[FILTERED] Trash chunk skipped: {chunk[:50]}...")
-                continue
-            accepted += 1
             docs.append(Document(
                 page_content=chunk,
                 metadata={
@@ -172,6 +124,13 @@ def chunk_documents(data_dir, split_func):
                     "skip_ocr_fix": metadata.get("skip_ocr_fix", False),
                 }
             ))
-        print(f"Accepted {accepted}/{len(chunks)} chunks from {path}")
+            final_chunks.append((chunk, metadata))
+            accepted += 1
+
+        if final_chunks:
+            print(f"[DB] Inserting {len(final_chunks)} chunks to DB for {path.name}")
+            insert_chunks(doc_id, final_chunks)
+
+        print(f"Accepted {accepted}/{len(chunks)} chunks from {path.stem}")
 
     return docs

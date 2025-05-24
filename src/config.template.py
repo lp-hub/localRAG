@@ -16,7 +16,7 @@ LLAMA_CPP_PARAMS = {
     "model_path": MODEL_PATH,
     "temperature": 0.8,         # Add creative variation
     "top_p": 0.8,               # Nucleus sampling for controlled randomness
-    "top_k": 40,                # Restrict to top-K tokens
+    "top_k": 35,                # Restrict to top-K tokens
     "repeat_penalty": 1.1,      # Discourage repetition
     "n_ctx": 4096,              # The number of tokens in the context
     "n_gpu_layers": 35,         # To fit GPU memory
@@ -24,7 +24,8 @@ LLAMA_CPP_PARAMS = {
     "use_mlock": False,
     "use_mmap": True,
     "verbose": True,
-    "n_threads": 12             # Tune for CPU parallelism if no GPU
+    "n_threads": 12,            # Tune for CPU parallelism if no GPU
+    "max_tokens": 4096,         # or more, if your model and RAM/GPU can handle it
 }
 
 # CHUNK_SIZE controls how large each document segment is (in tokens or characters depending on the loader).

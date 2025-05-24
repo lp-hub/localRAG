@@ -16,9 +16,9 @@ git clone https://github.com/lp-hub/localRAG.git && cd localRAG
 
 sudo apt update
 
-sudo apt install python3 python3.12-venv build-essential cmake sqlite3 djvulibre-bin
+sudo apt install python3 python3.12-venv build-essential cmake sqlite3
 
-https://visualstudio.microsoft.com/visual-cpp-build-tools/ for Windows, whatever...
+sudo apt install calibre djvulibre-bin libchm-bin pandoc tesseract-ocr-all
 
 3. Create and activate virtual environment
 ======================================================================
@@ -34,7 +34,7 @@ deactivate # after usig RAG
 
 pip install --upgrade pip && pip3 install striprtf
 
-pip install faiss-cpu ftfy gradio langchain langchain-community langchain-huggingface pathspec pymupdf pypdf pyrtf-ng pyspellchecker python-docx python-dotenv rapidfuzz sentence-transformers sqlite-utils symspellpy tiktoken unstructured
+pip install faiss-cpu ftfy gradio langchain langchain-community langchain-huggingface pathspec pillow pymupdf pypandoc pypdf pyrtf-ng pyspellchecker pytesseract python-docx python-dotenv rapidfuzz sentence-transformers sqlite-utils symspellpy tiktoken unstructured
 
 5. Install llama-cpp-python with CUDA support
 ======================================================================
@@ -51,13 +51,13 @@ mkdir -p models && wget https://huggingface.co/mradermacher/LLama-3-8b-Uncensore
 7. Add your documents
 ======================================================================
 
-Place .pdf, .txt, .md, .epub, etc., into your data/ folder.
+Place .pdf, .txt, .md, .epub, etc., into your files/ folder.
 Supported file types are automatically handled by the loader.
 
 8. Create and onfigure .env
 ======================================================================
 
-DATA_DIR=/directory_with_files DB_DIR=/faiss_db/ MODEL_PATH=/AI_model.gguf
+DATA_DIR=/files/ DB_DIR=/faiss_db/ MODEL_PATH=/AI_model.gguf
 
 #### Usage
 
