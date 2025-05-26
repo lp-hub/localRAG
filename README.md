@@ -1,10 +1,10 @@
-# localRAGOCR
+# localRAG
 
 ## Free, local, open-source RAG with SQLite & FAISS
 
 - Created & tested with Python 3.12, llama-cpp-python, LangChain, 
 - FAISS, and Gradio. Works offline on Ubuntu with NVIDIA GPU (for
-- CUDA acceleration) and GGUF model. Includes OCR scripts.
+- CUDA acceleration) and GGUF model
 
 #### Set up:
 
@@ -12,7 +12,7 @@
 ======================================================================
 
 ```
-git clone https://github.com/lp-hub/localRAGOCR.git && cd localRAGOCR
+git clone https://github.com/lp-hub/localRAG.git && cd localRAG
 ```
 
 - 2. Install GCC / build tools
@@ -28,9 +28,9 @@ sudo apt install calibre djvulibre-bin libchm-bin pandoc tesseract-ocr-all
 - 3. Create and activate virtual environment
 ======================================================================
 ```
-cd /../localRAGOCR && python3.12 -m venv venv # to create venv dir
+cd /../localRAG && python3.12 -m venv venv # to create venv dir
 
-source venv/bin/activate # (venv) USER@PC:/../localRAGOCR$
+source venv/bin/activate # (venv) USER@PC:/../localRAG$
 
 deactivate # after usig RAG
 ```
@@ -92,7 +92,7 @@ Open the IP in your browser for a simple web-based interface.
 
 Your computer may not be powerful enough to run some models.
 
-localRAGOCR
+localRAG
 ├── db
 │   └── normalization_map.template.json
 ├── faiss_db
@@ -116,6 +116,7 @@ localRAGOCR
 │   │   └── jsonhandler.py
 │   ├── extract
 │   │   ├── extractor.py
+│   │   ├── frequency_dictionary_en_82_765.txt
 │   │   ├── ocr.py
 │   │   ├── ocr2map.py
 │   │   └── ocrerrors.py
