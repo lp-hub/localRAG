@@ -67,7 +67,7 @@ Supported file types are automatically handled by the loader.
 - 8. Create and onfigure .env
 ======================================================================
 ```
-DATA_DIR=/files/ DB_DIR=/faiss_db/ MODEL_PATH=/AI_model.gguf
+DATA_DIR=/files/ DB_DIR=/db/ MODEL_PATH=/AI_model.gguf
 ```
 
 #### Usage
@@ -94,8 +94,6 @@ Your computer may not be powerful enough to run some models.
 
 localRAG
 ├── db
-│   └── normalization_map.template.json
-├── faiss_db
 ├── help
 │   ├── docstore.txt
 │   ├── learning.txt
@@ -116,7 +114,6 @@ localRAG
 │   │   └── jsonhandler.py
 │   ├── extract
 │   │   ├── extractor.py
-│   │   ├── frequency_dictionary_en_82_765.txt
 │   │   ├── ocr.py
 │   │   ├── ocr2map.py
 │   │   └── ocrerrors.py
@@ -133,7 +130,8 @@ localRAG
 │   ├── main.py
 │   └── webui.py
 ├── venv
-├── .env_template.txt
 ├── .gitignore
 ├── README.md
-└── requirements.txt
+├── requirements.txt
+├── template.env.txt
+└── templatenormalization_map.json
