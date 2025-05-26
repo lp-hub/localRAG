@@ -7,9 +7,9 @@ from config import EMBED_MODEL_NAME
 from data.db import init_db, is_metadata_db_empty
 from llm import run_rag, parse_args
 from logger import log_exception
-from knowledge.retriever import chunk_documents
-from knowledge.store import create_vector_store, load_vector_store
-from ingestion.chunker import split_into_chunks
+from know.retriever import chunk_documents
+from know.store import create_vector_store, load_vector_store
+from ingest.chunker import split_into_chunks
 
 def setup_retriever():
     args = parse_args()

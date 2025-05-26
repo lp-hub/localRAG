@@ -61,7 +61,6 @@ def split_into_chunks(text: str, update_map: bool = False) -> list[str]:
     return [doc.page_content for doc in splitter.split_documents([Document(page_content=cleaned)])]
 
 # === Loaders ===
-# Not Included in LangChain so we create our own classes
 
 # --- .doc loader (fallback using unstructured) ---
 class UnstructuredDocLoader:
@@ -149,8 +148,7 @@ class UnstructuredHTMLLoader:
 class FixedEPubLoader(UnstructuredEPubLoader):
     def __init__(self, file_path, *args, **kwargs):
         super().__init__(str(file_path), *args, **kwargs)     
-# MOBI is not directly supported. Convert to EPUB before ingestion.
-# Recommend pre-conversion using Calibre CLI:
+# MOBI is not directly supported. Convert using Calibre CLI to EPUB before ingestion.
 # ebook-convert input.mobi output.epub
 class MOBILoader:
     def __init__(self, file_path):

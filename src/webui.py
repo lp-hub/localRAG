@@ -5,7 +5,7 @@ import time
 
 from config import MODEL_PATH
 from main import setup_retriever
-from knowledge.provenance import run_rag_with_provenance
+from know.provenance import run_rag_with_provenance
 
 retriever = None
 
@@ -21,14 +21,21 @@ def gradio_rag(query, history):
     except Exception as e:
         print(f"[ERROR] Failed to run RAG: {e}")
         sources, answer = "Error:", str(e)
-    return answer, history + [(query, answer + "\n\nSources: " + sources)]
+    return answer + "\n\nSources: " + sources
+
+iface = gr.ChatInterface(
+    fn=gradio_rag,
+    title="Local RAG OCR",
+    description="Ask questions over your local documents using a LLaMA-backed RAG system.",
+    theme="soft",
+)
 
 def launch_gradio():
     chat = gr.Chatbot()
     iface = gr.ChatInterface(
         fn=gradio_rag,
         chatbot=chat,
-        title="📚 Local RAG Q&A",
+        title="Local RAG OCR",
         description="Ask questions over your local documents using a LLaMA-backed RAG system.",
         theme="soft",
     )

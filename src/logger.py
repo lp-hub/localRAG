@@ -31,12 +31,8 @@ logger.propagate = False # Avoid duplicate logs if root logger is used elsewhere
 
 # === Manual Timestamped Log Function ===
 def save_manual_log(message: str):
-    """
-    Write a single message to logs/log.txt with timestamp.
-
-    Args:
-        message (str): Message string to log.
-    """
+    
+    # Write a single message to logs/log.txt with timestamp.
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     entry = f"{timestamp} - {message}\n"
     with open(os.path.join(LOG_DIR, MANUAL_LOG_FILE), "a", encoding="utf-8") as f:
@@ -45,14 +41,6 @@ def save_manual_log(message: str):
 
 # === Unified Exception Logging Function ===
 def log_exception(message: str, exception: Exception, context: str = None):
-    """
-    Log an exception both as rotating logger error and also in manual log.txt with timestamp.
-
-    Args:
-        message (str): General description of what failed.
-        exception (Exception): The caught exception object.
-        context (str): Optional specific info (e.g., file name, query, operation).
-    """
     error_msg = f"{message}: {str(exception)}"
     if context:
         error_msg += f" | Context: {context}"
@@ -62,6 +50,3 @@ def log_exception(message: str, exception: Exception, context: str = None):
 
     # Also log manually with timestamp in plain .txt
     save_manual_log(error_msg)
-
-
-

@@ -7,12 +7,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 from config import DATA_DIR, DB_DIR, MODEL_PATH, LLAMA_CPP_PARAMS
-from knowledge.provenance import run_rag_with_provenance
+from know.provenance import run_rag_with_provenance
 
 print("llama-cpp-python version:", llama_cpp.__version__)
 
 # === LLM Generation ===
-
 def generate_answer(question, context, model_path):
     # Generate a response from the LLM given the question and retrieved context.
     prompt = ChatPromptTemplate.from_template(
@@ -23,7 +22,6 @@ def generate_answer(question, context, model_path):
         "Context: {context} \n"
         "<|start_header_id|>assistant<|end_header_id|>\n"
     )
-
     # Load LLaMA.cpp compatibal  model with GPU acceleration settings
     llm = LlamaCpp(**LLAMA_CPP_PARAMS)
    # Compose the prompt + llm + output parser chain
@@ -32,14 +30,11 @@ def generate_answer(question, context, model_path):
 
 # === RAG Pipeline (Retrieval-Augmented Generation) with PROVENANCE ===
 def run_rag(question: str, retriever, model_path: str) -> tuple[list[str], str]:
-    """
-    Run the RAG pipeline with provenance, returning source paths and answer.
-    """
+    # Run the RAG pipeline with provenance, returning source paths and answer.
     sources, answer = run_rag_with_provenance(question, retriever, model_path)
     return sources, answer
 
 # === CLI Argument Parsing ===
-
 def parse_args():
     parser = argparse.ArgumentParser(description="Local RAG CLI with FAISS and LLaMA")
     parser.add_argument("--data-dir", type=str, default=DATA_DIR, help="Directory with input documents")

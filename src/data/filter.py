@@ -4,7 +4,7 @@ import ftfy
 from data.jsonhandler import apply_normalization, load_normalization_map
 
 # === Load Normalization Rules ===
-normalization_rules = load_normalization_map(create_if_missing=False)  # Print loading/failure message
+normalization_rules = load_normalization_map(create_if_missing=False) # Print loading/failure message
 '''
 The normalization JSON is used here to clean and normalize 
 the entire raw text (fixing ligatures, punctuation, OCR artifacts, etc).

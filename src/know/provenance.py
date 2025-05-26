@@ -1,8 +1,3 @@
-"""
-This module provides a RAG runner that includes metadata provenance
-for each retrieved chunk, injecting metadata into the prompt and
-returning both sources list and answer.
-"""
 from typing import List, Tuple
 from langchain.schema import Document
 import os
@@ -15,12 +10,10 @@ def run_rag_with_provenance(
     """
     Run RAG pipeline, retrieving documents with FAISS retriever then
     constructing a prompt that includes provenance metadata.
-
     Args:
         question (str): The user question.
         retriever: A LangChain retriever (e.g., FAISS-based).
         model_path (str): Path to the LLM model.
-
     Returns:
         sources (List[str]): List of source file paths for retrieved chunks.
         answer (str): The LLM-generated answer.
@@ -55,3 +48,8 @@ def run_rag_with_provenance(
 
     sources_text = "\n\n".join(sorted(sources_info))
     return sources_text, answer
+"""
+This module provides a RAG runner that includes metadata provenance
+for each retrieved chunk, injecting metadata into the prompt and
+returning both sources list and answer.
+"""

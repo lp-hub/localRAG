@@ -6,7 +6,7 @@ from data import insert_document,insert_chunks, get_existing_hashes
 from config import EMBED_MODEL_NAME, GARBAGE_THRESHOLD
 from langchain.schema import Document
 
-from ingestion.chunker import detect_and_load_text
+from ingest.chunker import detect_and_load_text
 
 #For large files, consider reading in chunks:
 def hash_file(file_path):
