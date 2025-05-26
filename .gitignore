@@ -27,17 +27,17 @@ config.py
 *.key
 
 # FAISS / vector store
-faiss_db/
+db/
 *.faiss
 index.faiss
-
-# LangChain
-.langchain/
 
 # SQLite / local databases
 *.db
 *.sqlite
 *.sqlite3
+
+# LangChain
+.langchain/
 
 # Jupyter / notebooks
 .ipynb_checkpoints/
