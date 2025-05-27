@@ -1,28 +1,28 @@
 from typing import List, Tuple
 from langchain.schema import Document
 import os
-
+ 
+"""
+Run RAG pipeline, retrieving documents with FAISS retriever then
+constructing a prompt that includes provenance metadata.
+Args:
+    question (str): The user question.
+    retriever: A LangChain retriever (e.g., FAISS-based).
+Returns:
+    sources (List[str]): List of source file paths for retrieved chunks.
+    answer (str): The LLM-generated answer.
+"""
 def run_rag_with_provenance(
     question: str,
-    retriever,
-    model_path: str
+    retriever
 ) -> Tuple[str, str]:
-    """
-    Run RAG pipeline, retrieving documents with FAISS retriever then
-    constructing a prompt that includes provenance metadata.
-    Args:
-        question (str): The user question.
-        retriever: A LangChain retriever (e.g., FAISS-based).
-        model_path (str): Path to the LLM model.
-    Returns:
-        sources (List[str]): List of source file paths for retrieved chunks.
-        answer (str): The LLM-generated answer.
-    """
+
     # Import here to avoid circular dependency
     from llm import generate_answer
 
     # Retrieve chunks as LangChain Document objects
-    docs: List[Document] = retriever.get_relevant_documents(question)
+    # docs: List[Document] = retriever.get_relevant_documents(question) #DEPRECATED but works
+    docs: List[Document] = retriever.invoke(question)
 
     # Build context with metadata tags
     context_blocks: List[str] = []
@@ -44,7 +44,7 @@ def run_rag_with_provenance(
         sources_info.add(f"{line}\n  ↳ {snippet}")
 
     context_text = "\n\n".join(context_blocks)
-    answer = generate_answer(question, context_text, model_path)
+    answer = generate_answer(question, context_text)
 
     sources_text = "\n\n".join(sorted(sources_info))
     return sources_text, answer

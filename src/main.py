@@ -53,7 +53,7 @@ def main():
             break
 
         try:
-            sources, response = run_rag(query, retriever, args.model_path)
+            sources, response = run_rag(query, retriever)
             print("\nw\n", sources)
             print("\nAssistant:\n", response)
         except Exception as e:
