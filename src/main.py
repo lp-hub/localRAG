@@ -3,18 +3,35 @@ import shutil
 import subprocess
 import sys
 from langchain_huggingface import HuggingFaceEmbeddings
-# from langchain.embeddings import HuggingFaceEmbeddings
-from langchain_community.embeddings import HuggingFaceEmbeddings
 
 from data.db import init_db, is_metadata_db_empty
-from llm import run_rag, parse_args
-from logger import log_exception
+from server.llm import run_rag, parse_args
+from server.logger import log_exception
 from know.retriever import chunk_documents
 from know.store import create_vector_store, load_vector_store
 from ingest.chunker import split_into_chunks
 
 from config import DATA_DIR, DB_DIR, EMBED_MODEL_NAME_PATH, EMBED_MODEL_SNAPHOTS
+START_LAMMA = "./scripts/start_llama_server.sh"
 ramdisk_root = os.getenv("RAMDISK_ROOT")
+
+# --- Start server --
+def start_llama_server():
+    if not os.path.exists(START_LAMMA):
+        raise FileNotFoundError(f"Script not found: {START_LAMMA}")
+    print(f"[Info] Launching llama-server using: {START_LAMMA}")
+
+    try:
+        subprocess.Popen(
+            ["bash", START_LAMMA],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        print("[Info] llama-server started in background.")
+    except Exception as e:
+        print(f"[Error] Failed to start llama-server: {e}")
+start_llama_server()
+
 
 # --- Copy Specific Directories to RAM Disk ---
 def copy_to_ramdisk(env_vars, ramdisk_path=ramdisk_root):
@@ -50,7 +67,7 @@ def copy_to_ramdisk(env_vars, ramdisk_path=ramdisk_root):
 
 # --- Mount RAMdisk ---
 def mount_ramdisk():
-    script_path = os.path.join(os.path.dirname(__file__), 'mount_ramdisk.sh')
+    script_path = os.path.join(os.path.dirname(__file__), 'server/mount_ramdisk.sh')
     print(f"Mounting ramdisk using script at: {script_path}")
     try:
         subprocess.run(['sudo', script_path], check=True)
@@ -89,9 +106,9 @@ def safe_load(path_var, fallback_env):
 data_dir = safe_load("RAM_DATA_DIR", "DATA_DIR")  # will fall back if RAM copy missing
 db_dir = safe_load("RAM_DB_DIR", "DB_DIR")
 embed_model_dir = safe_load("RAM_EMBED_MODEL_NAME_PATH", "EMBED_MODEL_NAME_PATH")
-print(">>>" + data_dir)
-print(">>>" + db_dir)
-print(">>>" + embed_model_dir)
+# print(">>>" + data_dir)
+# print(">>>" + db_dir)
+# print(">>>" + embed_model_dir)
 
 
 # --- RAG loading ---
@@ -104,10 +121,10 @@ def setup_retriever():
     args.data_dir = data_dir
 
     # Consistent check for critical files
-    print(f"Checking if metadata DB exists at: {args.db_dir}")
+    # print(f"Checking if metadata DB exists at: {args.db_dir}")
     metadata_exists = not is_metadata_db_empty()
     faiss_exists = os.path.exists(os.path.join(args.db_dir, "index.faiss"))
-    print(f"Metadata exists: {metadata_exists}, FAISS index exists: {faiss_exists}")
+    # print(f"Metadata exists: {metadata_exists}, FAISS index exists: {faiss_exists}")
 
     if not metadata_exists or not faiss_exists:
         if not args.rebuild_db:
@@ -129,7 +146,6 @@ def setup_retriever():
         encode_kwargs={"normalize_embeddings": True},
     )
 
-
     print(f"Loading embedding model: {embed_model_dir}")
     print(f"Embedding dimension: {len(embedding.embed_query('test'))}")
 
@@ -141,14 +157,14 @@ def setup_retriever():
             raise ValueError("No chunks found. Check your data directory or chunking logic.")
         return create_vector_store(args.db_dir, chunks, embedding)
     else:
-        print("Loading existing vector store from RAM disk...")
         return load_vector_store(args.db_dir, embedding)
-
 
 # Just ensure setup_retriever() is used
 def main():
     args = parse_args()
-    retriever = setup_retriever()
+    retriever = setup_retriever()    
+    print("=== Local RAG Client Ready ===")
+    print("Use this program to ask questions over your document database.")
     print("Interactive RAG CLI started. Type 'exit' to quit.")
     while True:
         query = input("\nYou: ")
@@ -165,3 +181,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    

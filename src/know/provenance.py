@@ -18,7 +18,7 @@ def run_rag_with_provenance(
 ) -> Tuple[str, str]:
 
     # Import here to avoid circular dependency
-    from llm import generate_answer
+    from server.llm import generate_answer
 
     # Retrieve chunks as LangChain Document objects
     # docs: List[Document] = retriever.get_relevant_documents(question) #DEPRECATED but works

@@ -14,3 +14,5 @@ if ! mountpoint -q "$RAMDISK_DIR"; then
 else
     echo "RAM disk already mounted at $RAMDISK_DIR"
 fi
+
+#chmod +x mount_ramdisk.sh

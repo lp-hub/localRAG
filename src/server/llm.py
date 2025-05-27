@@ -2,34 +2,38 @@ import argparse
 import datetime
 import os
 from pydantic import Field
-import sys
 import requests
+import sys
+import torch
 from typing import Optional, List, Mapping, Any
 from langchain.llms.base import LLM
-from langchain_community.llms import LlamaCpp
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-from config import DATA_DIR, DB_DIR
 from know.provenance import run_rag_with_provenance
+from config import DATA_DIR, DB_DIR
+LLAMA_SERVER_HOST = "127.0.0.1"
+LLAMA_SERVER_PORT = "8080"
+SERVER_URL = "http://" + LLAMA_SERVER_HOST + ":" + LLAMA_SERVER_PORT
 
-# print(f"Connecting to llama server at {LLAMA_SERVER_HOST}:{LLAMA_SERVER_PORT}...")
+print(f"Connecting to llama server at {LLAMA_SERVER_HOST}:{LLAMA_SERVER_PORT}...")
 # print(f"Using model: {model_name} ({model_size} params) on device: {device_name}")
 # print(f"Context size: {LLAMA_CPP_PARAMS['n_ctx']}")
 # print(f"GPU layers: {LLAMA_CPP_PARAMS['n_gpu_layers']}")
 # print(f"Batch size: {LLAMA_CPP_PARAMS['n_batch']}")
 # print(f"FAISS index loaded from: {DB_DIR}, documents indexed: {num_docs}")
-print("=== Local RAG Client Ready ===")
 print(f"Start time: {datetime.datetime.now().isoformat()}")
 print(f"Python version: {sys.version.split()[0]}")
 # print(f"Running on host: {os.uname().nodename}")
-print("Use this program to ask questions over your document database.")
+print(f"CUDA available: {torch.cuda.is_available()}")  # True
+print(torch.cuda.get_device_name(0)) 
 print("Server at: 127.0.0.1:8080")
+print("Loading...")
 
 
 # === Connect LLM Server ===
 class LlamaCppServerClient(LLM):
-    server_url: str = Field(default="http://127.0.0.1:8080")
+    server_url: str = Field(default=SERVER_URL)
     max_tokens: int = 128
     temperature: float = 0.7
 
@@ -62,7 +66,7 @@ def generate_answer(question, context):
         "<|start_header_id|>assistant<|end_header_id|>\n"
     )
 
-    llm = LlamaCppServerClient(server_url="http://127.0.0.1:8080")  # or inject if needed
+    llm = LlamaCppServerClient(server_url=SERVER_URL)  # or inject if needed
     chain = prompt | llm | StrOutputParser()
     # print("[DEBUG] Invoking LLM with context length:", len(context))
     return chain.invoke({"question": question, "context": context})
