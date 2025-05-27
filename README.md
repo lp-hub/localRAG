@@ -3,8 +3,8 @@
 ## Free, local, open-source RAG with SQLite & FAISS
 
 - Created & tested with Python 3.12, llama.cpp, LangChain, 
-- FAISS, and Gradio. Works offline on Ubuntu with NVIDIA GPU (for
-- CUDA acceleration) and GGUF model. OCR scripts available.
+- FAISS, and Gradio. Works offline on Ubuntu with NVIDIA GPU and
+- RAM disk and GGUF model. OCR scripts available.
 
 #### Set up:
 
