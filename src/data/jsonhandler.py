@@ -73,7 +73,7 @@ def load_normalization_map(path: Path = JSON_PATH, create_if_missing: bool = Fal
     try:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        logger.info(f"Normalization map loaded from {path}")
+        logger.info(f"Normalization map loaded: {path.name}")
         return data
     except Exception as e:
         logger.error(f"Error loading normalization map from {path}: {e}")

@@ -2,9 +2,9 @@
 
 ## Free, local, open-source RAG with SQLite & FAISS
 
-- Created & tested with Python 3.12, llama-cpp-python, LangChain, 
+- Created & tested with Python 3.12, llama.cpp, LangChain, 
 - FAISS, and Gradio. Works offline on Ubuntu with NVIDIA GPU (for
-- CUDA acceleration) and GGUF model
+- CUDA acceleration) and GGUF model. OCR scripts available.
 
 #### Set up:
 
@@ -43,12 +43,17 @@ pip install --upgrade pip && pip3 install striprtf
 pip install faiss-cpu ftfy gradio langchain langchain-community langchain-huggingface pathspec pillow pymupdf pypandoc pypdf pyrtf-ng pyspellchecker pytesseract python-docx python-dotenv rapidfuzz sentence-transformers sqlite-utils symspellpy tiktoken unstructured
 ```
 
-- 5. Install llama-cpp-python with CUDA support
+- 5. Build and install llama-server with CUDA support
 ======================================================================
 ```
-pip uninstall -y llama-cpp-python
+git clone https://github.com/ggerganov/llama.cpp
+cd llama.cpp
+mkdir build
+cd build
+cmake .. -DLLAMA_BUILD_SERVER=ON -DGGML_CUDA=ON
+make -j$(nproc)
+./build/bin/llama-server \ -m ./models/llama-3.gguf \--port 8080 \ --ctx-size 4096 \ --n-gpu-layers 35 \ --host 127.0.0.1 \ --mlock \ --no-mmap
 
-CMAKE_ARGS="-DGGML_CUDA=on" FORCE_CMAKE=1 pip install --no-cache-dir --force-reinstall llama-cpp-python
 ```
 
 - 6. Download the GGUF model

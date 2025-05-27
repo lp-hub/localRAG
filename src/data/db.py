@@ -63,7 +63,7 @@ def init_db(rebuild=False) -> sqlite3.Connection:
     
     conn = sqlite3.connect(DB_PATH)
     if db_already_exists:
-            print(f"Loaded existing metadata.db")
+            print(f"Loaded existing metadata: {DB_PATH.name}")
     else:
             print(f"[Info] Creating new metadata.db")  
     cur = conn.cursor()
