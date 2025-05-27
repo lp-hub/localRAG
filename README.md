@@ -52,7 +52,14 @@ mkdir build
 cd build
 cmake .. -DLLAMA_BUILD_SERVER=ON -DGGML_CUDA=ON
 make -j$(nproc)
-./build/bin/llama-server \ -m ./models/llama-3.gguf \--port 8080 \ --ctx-size 4096 \ --n-gpu-layers 35 \ --host 127.0.0.1 \ --mlock \ --no-mmap
+./build/bin/llama-server \
+  -m ./models/llama-3.gguf \
+  --port 8080 \
+  --ctx-size 4096 \
+  --n-gpu-layers 35 \
+  --host 127.0.0.1 \
+  --mlock \
+  --no-mmap
 
 ```
 
