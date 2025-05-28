@@ -21,7 +21,6 @@ logs/
 # Local config / secrets
 scripts/
 normalization_map.json
-config.py
 .env
 *.secret
 *.key
