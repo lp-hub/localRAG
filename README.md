@@ -3,8 +3,8 @@
 ## Free, local, open-source RAG with SQLite & FAISS
 
 - Created & tested with Python 3.12, llama.cpp, LangChain, 
-- FAISS, and Gradio. Works offline on Ubuntu with NVIDIA GPU and
-- RAM disk and GGUF model. OCR scripts available.
+- FAISS, and Gradio on Ubuntu with NVIDIA GPU, RAM disk,
+- SQLite and GGUF model. OCR scripts available.
 
 #### Set up:
 
@@ -76,10 +76,14 @@ Place .pdf, .txt, .md, .epub, etc., into your files/ folder.
 Supported file types are automatically handled by the loader.
 ```
 
-- 8. Create and onfigure .env
+- 8. Create and onfigure .env, edit scripts
 ======================================================================
 ```
 DATA_DIR=/files/ DB_DIR=/db/ MODEL_PATH=/AI_model.gguf
+
+start_llama_server.sh - path to server and model and see comments
+
+mount_ramdisk.sh - if not needed, comment related functions in main.py
 ```
 
 #### Usage

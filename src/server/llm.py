@@ -3,6 +3,7 @@ import datetime
 import os
 from pydantic import Field
 import requests
+import subprocess
 import sys
 import torch
 from typing import Optional, List, Mapping, Any
@@ -11,7 +12,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 from know.provenance import run_rag_with_provenance
-from config import DATA_DIR, DB_DIR
+from config import DATA_DIR, DB_DIR, START_LAMMA
+
 LLAMA_SERVER_HOST = "127.0.0.1"
 LLAMA_SERVER_PORT = "8080"
 SERVER_URL = "http://" + LLAMA_SERVER_HOST + ":" + LLAMA_SERVER_PORT
@@ -29,6 +31,22 @@ print(f"CUDA available: {torch.cuda.is_available()}")  # True
 print(torch.cuda.get_device_name(0)) 
 print("Server at: 127.0.0.1:8080")
 print("Loading...")
+
+# === Start LLM Server ===
+def start_llama_server():
+    if not os.path.exists(START_LAMMA):
+        raise FileNotFoundError(f"Script not found: {START_LAMMA}")
+    print(f"[Info] Launching llama-server using: {START_LAMMA}")
+
+    try:
+        subprocess.Popen(
+            ["bash", START_LAMMA],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        print("[Info] llama-server started in background.")
+    except Exception as e:
+        print(f"[Error] Failed to start llama-server: {e}")
 
 
 # === Connect LLM Server ===

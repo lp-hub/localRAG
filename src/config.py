@@ -11,11 +11,15 @@ def getenv_float(name: str, default: float) -> float:
 DATA_DIR = os.getenv("DATA_DIR")
 DB_DIR = os.getenv("DB_DIR")
 MODEL_PATH = os.getenv("MODEL_PATH")
-MODEL_RAM = os.getenv("MODEL_RAM")
 
-EMBED_MODEL_NAME = os.getenv("EMBED_MODEL_NAME") # FAISS and LangChain's VectorstoreRetriever
-                                # "intfloat/multilingual-e5-small" - 100 languages, compatible but basic
+RAMDISK_ROOT=os.getenv("RAMDISK_ROOT")
+EMBED_MODEL_NAME_PATH = os.getenv("EMBED_MODEL_NAME_PATH") # for RAMDISK
+EMBED_MODEL_SNAPHOTS = os.getenv("EMBED_MODEL_SNAPHOTS") # for RAMDISK
+EMBED_MODEL_NAME = os.getenv("EMBED_MODEL_NAME") # for lamma-cpp-python or HDD
+                                # FAISS and LangChain's VectorstoreRetriever
+                                # "intfloat/multilingual-e5-small" - 100 languages
                                 # "BAAI/bge-small-en" - for English-only documents
+START_LAMMA = os.getenv("START_LAMMA")
 LLAMA_CPP_PARAMS = {
     "model_path": MODEL_PATH,   # Path to your GGUF model file
     "temperature": 0.7,         # Sampling temperature; lower = deterministic, higher = more creative
