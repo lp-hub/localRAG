@@ -12,9 +12,9 @@ from ingest.chunker import split_into_chunks
 
 # from config import EMBED_MODEL_SNAPHOTS, EMBED_MODEL_NAME_PATH, EMBED_MODEL_NAME # imported from .env
 
-# === Server loading ===
+# ========== Server loading ==========
 start_llama_server()
-mount_ramdisk() # COMMENT TO TURN OFF IF NOT USED
+# mount_ramdisk() # COMMENT TO TURN OFF IF NOT USED
 copy_to_ramdisk(["DB_DIR", "DATA_DIR", "EMBED_MODEL_NAME_PATH"])  # Add "DATA_DIR" if you rebuild indexes frequently.
 
 # Set fallback env vars somewhere in your environment or config:
@@ -26,7 +26,7 @@ embed_model_dir = safe_load("RAM_EMBED_MODEL_NAME_PATH", "EMBED_MODEL_NAME_PATH"
 # print(">>>" + db_dir)
 # print(">>>" + embed_model_dir)
 
-# === RAG loading ===
+# ========== RAG loading ==========
 def setup_retriever():
     print(f"Setting up retriever with DB dir: {db_dir} and Data dir: {data_dir}")
     args = parse_args()
@@ -76,7 +76,7 @@ def setup_retriever():
     else:
         return load_vector_store(args.db_dir, embedding)
 
-# === Ensure setup_retriever() is used ===
+# ========== Ensure setup_retriever() is used ==========
 def main():
     args = parse_args()
     retriever = setup_retriever()    
@@ -98,5 +98,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    

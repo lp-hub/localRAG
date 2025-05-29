@@ -8,10 +8,10 @@ load_dotenv()
 
 # ========== Configuration ==========
 DST_DIR = Path(os.getenv("DST_DIR", "text_files"))  # fallback for manual testing
-FREQ_DICT = "frequency_dictionary_en_82_765.txt"
-WHITELIST = "whitelist.txt"
-OUTPUT_JSON = "ocr_corrections.json"
-OUTPUT_TXT = "ocr_suggestions_report.txt"
+FREQ_DICT = Path(__file__).parent / "frequency_dictionary_en_82_765.txt"
+WHITELIST = Path(__file__).parent / "whitelist.txt"
+OUTPUT_JSON = Path(__file__).resolve().parent.parent.parent / "logs" / "ocr_corrections.json"
+OUTPUT_TXT = Path(__file__).resolve().parent.parent.parent / "logs" / "ocr_suggestions_report.txt"
 MAX_EDIT_DISTANCE = 2
 
 # ========== Normalization Maps ==========
@@ -47,7 +47,9 @@ def load_whitelist(path):
 sym_spell = SymSpell(max_dictionary_edit_distance=MAX_EDIT_DISTANCE, prefix_length=7)
 if not sym_spell.load_dictionary(FREQ_DICT, term_index=0, count_index=1):
     raise RuntimeError(f"Failed to load dictionary from {FREQ_DICT}")
-
+else:
+    print(f"Loaded dictionary: {len(sym_spell._words)} words")
+    
 whitelist = load_whitelist(WHITELIST)
 
 # ========== Process Text Files ==========
@@ -74,7 +76,7 @@ for file_path in DST_DIR.rglob("*.txt"):
             # Spellcheck individual words
             words = set(extract_words(line.lower()))
             for word in words:
-                if word in whitelist or sym_spell.word_frequency.lookup(word):
+                if word in whitelist or sym_spell._words.get(word, 0) > 0:
                     continue
 
                 suggestions = sym_spell.lookup(word, Verbosity.TOP, max_edit_distance=MAX_EDIT_DISTANCE)
