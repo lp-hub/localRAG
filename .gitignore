@@ -19,6 +19,8 @@ logs/
 *.log
 
 # Local config / secrets
+corrector/
+extractor/
 scripts/
 normalization_map.json
 .env
