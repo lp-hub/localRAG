@@ -3,17 +3,15 @@ import re
 import sys
 from pathlib import Path
 from datetime import datetime
-# PYTHONPATH=./src python scripts/extractor.py
+# python3 src/extract/extractor.py
 from ingest.chunker import detect_and_load_text
-from ocr import check_and_ocr_empty_outputs
+# from extract.ocr import check_and_ocr_empty_outputs
 from dotenv import load_dotenv
 load_dotenv()
 
 SRC_DIR = Path(os.getenv("SRC_DIR"))  # change this to your source folder
 DST_DIR = Path(os.getenv("DST_DIR"))  # change this to your output folder
 LOG_FILE = Path(os.getenv("LOG_FILE")) # full absolute path from .env
-
-timestamp_pattern = re.compile(r"_\d{8}_\d{6}$")  # e.g., _20250523_153012
 
 def assert_dirs_exist(*dirs):
     for d in dirs:
@@ -66,7 +64,7 @@ def get_already_processed():
         return set(lines)
 
 def main():
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") # uncomment if u need TIMESTAMP
     files_processed = 0
     processed_files = get_already_processed()
     new_log_entries = []
@@ -92,7 +90,8 @@ def main():
         target_dir = DST_DIR / file_path.relative_to(SRC_DIR).parent
         target_dir.mkdir(parents=True, exist_ok=True)
 
-        new_filename = f"{original_filename}_{timestamp}.txt"  # book.pdf_20250524_153012.txt
+        new_filename = f"{original_filename}.txt"
+        # new_filename = f"{original_filename}_{timestamp}.txt"  # book.pdf_20250524_153012.txt TIMESTAMP
         target_path = target_dir / new_filename
 
         with target_path.open("w", encoding="utf-8") as f:

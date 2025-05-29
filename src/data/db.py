@@ -63,10 +63,13 @@ def init_db(rebuild=False) -> sqlite3.Connection:
     
     conn = sqlite3.connect(DB_PATH)
     if db_already_exists:
-            print(f"Loaded existing metadata: {DB_PATH.name}")
+        print(f"Loaded existing metadata: {DB_PATH.name}")
     else:
-            print(f"[Info] Creating new metadata.db")  
+        print(f"[Info] Creating new metadata.db")
     cur = conn.cursor()
+    cur.execute("PRAGMA foreign_keys = ON;")  # ENABLE enforcement
+    # ON DELETE CASCADE - critical for cleanup
+    # Deleting a document will automatically delete all chunks tied to garbage - clean and safe.
 
     cur.execute('''
         CREATE TABLE IF NOT EXISTS documents (
@@ -76,7 +79,12 @@ def init_db(rebuild=False) -> sqlite3.Connection:
             hash TEXT UNIQUE,
             timestamp TEXT,
             source_type TEXT,
-            embedding_model TEXT
+            embedding_model TEXT,
+            author TEXT,
+            date TEXT,
+            language TEXT,
+            tags TEXT,
+            source_url TEXT
         )
     ''')
 
@@ -86,7 +94,11 @@ def init_db(rebuild=False) -> sqlite3.Connection:
             document_id INTEGER,
             chunk_index INTEGER,
             content TEXT,
-            FOREIGN KEY(document_id) REFERENCES documents(id)
+            page_num INTEGER,
+            char_start INTEGER,
+            char_end INTEGER,
+            section TEXT,
+            FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE
         )
     ''')
 

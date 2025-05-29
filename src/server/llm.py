@@ -29,7 +29,6 @@ print(f"Python version: {sys.version.split()[0]}")
 # print(f"Running on host: {os.uname().nodename}")
 print(f"CUDA available: {torch.cuda.is_available()}")  # True
 print(torch.cuda.get_device_name(0)) 
-print("Server at: 127.0.0.1:8080")
 print("Loading...")
 
 # === Start LLM Server ===
