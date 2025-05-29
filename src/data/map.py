@@ -7,7 +7,6 @@ from glob import glob
     Escapes regex safely using re.escape.
     Automatically deduplicates fixes across multiple logs.
     You can re-run it anytime without duplicating entries.
-    python3 scripts/orc2map.py
 '''
 LOG_DIR = "logs"
 MAP_FILE = os.path.join("db", "normalization_map.json")
