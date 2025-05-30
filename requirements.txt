@@ -95,6 +95,7 @@ pydantic==2.11.4
 pydantic-settings==2.9.1
 pydantic_core==2.33.2
 pydub==0.25.1
+pyglossary==5.0.10
 Pygments==2.19.1
 PyMuPDF==1.25.5
 pypandoc==1.15

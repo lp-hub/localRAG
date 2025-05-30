@@ -4,7 +4,7 @@
 
 - Created & tested with Python 3.12, llama.cpp, LangChain, 
 - FAISS, and Gradio on Ubuntu with NVIDIA GPU, RAM disk,
-- SQLite and GGUF model. OCR scripts available.
+- SQLite and GGUF model. OCR scripts in OCR-corrector repo.
 
 #### Set up:
 
@@ -127,12 +127,8 @@ localRAG
 │   │   ├── __init__.py
 │   │   ├── db.py
 │   │   ├── filter.py
-│   │   └── jsonhandler.py
-│   ├── extract
-│   │   ├── extractor.py
-│   │   ├── ocr.py
-│   │   ├── ocr2map.py
-│   │   └── ocrerrors.py
+│   │   ├── jsonhandler.py
+│   │   └── map.py
 │   ├── ingest
 │   │   ├── chunker.py
 │   │   └── formatter.py
@@ -140,9 +136,13 @@ localRAG
 │   │   ├── provenance.py
 │   │   ├── retriever.py
 │   │   └── store.py
-│   ├── config.template.py
-│   ├── llm.py
-│   ├── logger.py
+│   ├── server
+│   │   ├── llm.py
+│   │   ├── logger.py
+│   │   ├── mount_ramdisk.sh
+│   │   ├── ramdisk.py
+│   │   └── start_llama_server.sh
+│   ├── config.py
 │   ├── main.py
 │   └── webui.py
 ├── venv

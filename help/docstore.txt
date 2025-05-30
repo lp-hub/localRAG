@@ -11,7 +11,9 @@ In the context of vector search and LangChain FAISS (or other vector stores):
     doc_id  (string or int)  →  Document(text=..., metadata=...)
 
 So when FAISS returns nearest neighbor indices, the docstore lets you get the actual document content (and metadata) for those indices.
+
 Why is docstore tricky and causes problems?
+
 1. Persistence and Serialization
 
     Vectors and the FAISS index are stored separately from the docstore.
@@ -47,6 +49,7 @@ Why is docstore tricky and causes problems?
     Alternatives exist (on-disk, database-backed docstores), but add complexity.
 
 What do you get by implementing docstore properly?
+
 1. Correct retrieval of actual documents
 
     When you query, FAISS returns indices of nearest vectors.
@@ -92,7 +95,6 @@ What about speed and model quality?
             Without docstore, you can’t get the actual text to feed to the LLM.
 
             So, model quality drops to zero because there’s no context to provide.
-
 
 
 LangChain’s current implementations evolve quickly and sometimes break pickle compatibility.
