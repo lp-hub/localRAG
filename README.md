@@ -9,14 +9,13 @@
 #### Set up:
 
 - 1. Download or clone this repository.
-=======================================
 
 ```
 git clone https://github.com/lp-hub/localRAG.git && cd localRAG
 ```
 
 - 2. Install GCC / build tools
-=======================================
+
 ```
 sudo apt update
 
@@ -26,7 +25,7 @@ sudo apt install calibre djvulibre-bin libchm-bin pandoc tesseract-ocr-all
 ```
 
 - 3. Create and activate virtual environment
-=======================================
+
 ```
 cd /../localRAG && python3.12 -m venv venv # to create venv dir
 
@@ -36,7 +35,7 @@ deactivate # after usig RAG
 ```
 
 - 4. Install Python dependencies
-=======================================
+
 ```
 pip install --upgrade pip && pip3 install striprtf
 
@@ -44,7 +43,7 @@ pip install faiss-cpu ftfy gradio langchain langchain-community langchain-huggin
 ```
 
 - 5. Build and install llama-server with CUDA support
-=======================================
+
 ```
 git clone https://github.com/ggerganov/llama.cpp
 cd llama.cpp
@@ -64,20 +63,20 @@ make -j$(nproc)
 ```
 
 - 6. Download the GGUF model
-=======================================
+
 ```
 mkdir -p models && wget https://huggingface.co/mradermacher/LLama-3-8b-Uncensored-GGUF/resolve/main/LLama-3-8b-Uncensored.Q8_0.gguf -O models/Llama-3-8B-Uncensored.Q8_0.gguf
 ```
 
 - 7. Add your documents
-=======================================
+
 ```
 Place .pdf, .txt, .md, .epub, etc., into your files/ folder.
 Supported file types are automatically handled by the loader.
 ```
 
 - 8. Create and onfigure .env, edit scripts
-=======================================
+
 ```
 DATA_DIR=/files/ DB_DIR=/db/ MODEL_PATH=/AI_model.gguf
 
