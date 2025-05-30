@@ -22,7 +22,6 @@ logs/
 corrector/
 extractor/
 scripts/
-normalization_map.json
 .env
 *.secret
 *.key
