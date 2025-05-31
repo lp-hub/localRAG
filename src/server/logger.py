@@ -4,7 +4,7 @@ import os
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
 
-# === Config Paths ===
+# ========== Config Paths ==========
 LOG_DIR = "logs"
 ROTATING_LOG_FILE = "rag_errors.log"
 MANUAL_LOG_FILE = "log.txt"
@@ -13,7 +13,7 @@ LOG_FILENAME = os.path.join(os.path.dirname(__file__), LOG_DIR, ROTATING_LOG_FIL
 # Create logs/ directory if it doesn't exist
 os.makedirs(LOG_DIR, exist_ok=True)
 
-# === Rotating File Logger ===
+# ========== Rotating File Logger ==========
 handler = RotatingFileHandler(
     filename=os.path.join(LOG_DIR, ROTATING_LOG_FILE),
     maxBytes=5 * 1024 * 1024,   # 5 MB
@@ -29,7 +29,7 @@ logger.addHandler(handler)
 logger.propagate = False # Avoid duplicate logs if root logger is used elsewhere
 
 
-# === Manual Timestamped Log Function ===
+# ========== Manual Timestamped Log Function ==========
 def save_manual_log(message: str):
     
     # Write a single message to logs/log.txt with timestamp.
@@ -39,7 +39,7 @@ def save_manual_log(message: str):
         f.write(entry)
 
 
-# === Unified Exception Logging Function ===
+# ========== Unified Exception Logging Function ==========
 def log_exception(message: str, exception: Exception, context: str = None):
     error_msg = f"{message}: {str(exception)}"
     if context:

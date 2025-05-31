@@ -4,7 +4,7 @@ import subprocess
 
 ramdisk_root = os.getenv("RAMDISK_ROOT") # if you prefer, import from config.py
 
-# === Mount RAM Disk ===
+# ========== Mount RAM Disk ==========
 def mount_ramdisk():
     script_path = os.path.join(os.path.dirname(__file__), 'mount_ramdisk.sh')
     print(f"Mounting ramdisk using script at: {script_path}")
@@ -19,7 +19,7 @@ def mount_ramdisk():
 # Then change the Python call to:
 # subprocess.run(['sudo', '/full/path/to/mount_ramdisk.sh'], check=True)
 
-# === Copy Specific Directories to RAM Disk ===
+# ========== Copy Specific Directories to RAM Disk ==========
 def copy_to_ramdisk(env_vars, ramdisk_path=ramdisk_root):
     for var in env_vars:
         original_path = os.getenv(var)
@@ -51,7 +51,7 @@ def copy_to_ramdisk(env_vars, ramdisk_path=ramdisk_root):
         except Exception as e:
             print(f"Failed to copy {original_path} to RAM disk: {e}")
 
-# === Fallback to HDD if RAM Disk Fails ===
+# ========== Fallback to HDD if RAM Disk Fails ==========
 def safe_load(path_var, fallback_env):
     path = os.getenv(path_var)
     print(f"Trying to load from {path_var}: {path}")

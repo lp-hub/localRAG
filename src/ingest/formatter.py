@@ -1,4 +1,4 @@
-# === Retrieval Helpers ===
+# ========== Retrieval Helpers ==========
 
 def retrieve_documents(retriever, question):
     return retriever.get_relevant_documents(question)

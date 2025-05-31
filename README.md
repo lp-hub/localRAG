@@ -59,7 +59,6 @@ make -j$(nproc)
   --host 127.0.0.1 \
   --mlock \
   --no-mmap
-
 ```
 
 - 6. Download the GGUF model
