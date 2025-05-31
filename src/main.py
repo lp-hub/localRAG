@@ -6,6 +6,7 @@ from data.db import init_db, is_metadata_db_empty
 from server.llm import run_rag, parse_args, start_llama_server
 from server.logger import log_exception
 from server.ramdisk import mount_ramdisk, copy_to_ramdisk, safe_load
+from server.watchdog import start_watchdog
 from know.retriever import chunk_documents
 from know.store import create_vector_store, load_vector_store
 from ingest.chunker import split_into_chunks
@@ -14,8 +15,9 @@ from ingest.chunker import split_into_chunks
 
 # ========== Server loading ==========
 start_llama_server()
-# mount_ramdisk() # COMMENT TO TURN OFF IF NOT USED
+mount_ramdisk() # COMMENT TO TURN OFF IF NOT USED
 copy_to_ramdisk(["DB_DIR", "DATA_DIR", "EMBED_MODEL_NAME_PATH"])  # Add "DATA_DIR" if you rebuild indexes frequently.
+start_watchdog()
 
 # Set fallback env vars somewhere in your environment or config:
 # e.g. DATA_DIR=/path/to/data, DB_DIR=/path/to/db on HDD
