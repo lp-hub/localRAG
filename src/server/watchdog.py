@@ -13,7 +13,8 @@ import json
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 # pip install watchdog
-SRC_DIR = "/mnt/ramdisk/db"
+RAMDISK_ROOT = os.path.expanduser(os.environ["RAMDISK_ROOT"])
+SRC_DIR = os.path.join(RAMDISK_ROOT, "db")
 USER_DIR = os.path.expanduser(os.environ["USER_DIR"])
 DST_DIR = os.path.join(USER_DIR, "db")
 TEMP_DIR = os.path.join(DST_DIR, ".tmp_sync")
