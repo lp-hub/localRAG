@@ -13,16 +13,10 @@ from ingest.chunker import split_into_chunks
 
 # from config import EMBED_MODEL_SNAPHOTS, EMBED_MODEL_NAME_PATH, EMBED_MODEL_NAME # imported from .env
 
-# ========== Server loading ==========
-start_llama_server()
-mount_ramdisk() # COMMENT TO TURN OFF IF NOT USED
-copy_to_ramdisk(["DB_DIR", "DATA_DIR", "EMBED_MODEL_NAME_PATH"])  # Add "DATA_DIR" if you rebuild indexes frequently.
-start_watchdog()
-
 # Set fallback env vars somewhere in your environment or config:
 # e.g. DATA_DIR=/path/to/data, DB_DIR=/path/to/db on HDD
-data_dir = safe_load("RAM_DATA_DIR", "DATA_DIR")  # will fall back if RAM copy missing
-db_dir = safe_load("RAM_DB_DIR", "DB_DIR")
+# data_dir = safe_load("RAM_DATA_DIR", "DATA_DIR")
+db_dir = safe_load("RAM_DB_DIR", "DB_DIR") # will fall back if RAM copy missing
 embed_model_dir = safe_load("RAM_EMBED_MODEL_NAME_PATH", "EMBED_MODEL_NAME_PATH")
 # print(">>>" + data_dir)
 # print(">>>" + db_dir)
@@ -30,12 +24,12 @@ embed_model_dir = safe_load("RAM_EMBED_MODEL_NAME_PATH", "EMBED_MODEL_NAME_PATH"
 
 # ========== RAG loading ==========
 def setup_retriever():
-    print(f"Setting up retriever with DB dir: {db_dir} and Data dir: {data_dir}")
+    print(f"Setting up retriever with DB dir: {db_dir}") # and Data dir: {data_dir}")
     args = parse_args()
 
     # Override args.db_dir and args.data_dir with RAM disk paths for speed
     args.db_dir = db_dir
-    args.data_dir = data_dir
+    # args.data_dir = data_dir
 
     # Consistent check for critical files
     # print(f"Checking if metadata DB exists at: {args.db_dir}")
@@ -99,4 +93,8 @@ def main():
     return retriever
 
 if __name__ == "__main__":
+    start_llama_server()
+    mount_ramdisk() # COMMENT TO TURN OFF IF NOT USED   
+    copy_to_ramdisk(["DB_DIR", "EMBED_MODEL_NAME_PATH"])  # Add "DATA_DIR" if you rebuild indexes frequently.
+    start_watchdog() # COMMENT TO TURN OFF IF NOT USED
     main()

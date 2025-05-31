@@ -68,10 +68,21 @@ def validate_file(path):
         return is_valid_sqlite(path)
     elif path.endswith(".json"):
         return is_valid_json(path)
+    elif path.endswith(".pkl"):
+        return is_valid_pickle(path)
     elif path.endswith(".log"):
         return True
     else:
         print(f"⚠️ Ignored file type: {path}")
+        return False
+    
+def is_valid_pickle(path):
+    try:
+        import pickle
+        with open(path, "rb") as f:
+            _ = pickle.load(f)
+        return True
+    except:
         return False
     
 def sync_file_to_disk(src_path):
@@ -85,7 +96,7 @@ def sync_file_to_disk(src_path):
     dst_path = os.path.join(DST_DIR, rel_path)
 
     if not has_file_changed(src_path, dst_path):
-        # print(f"⚖️ Skipping unchanged: {rel_path}") # prints into prompt => You: TODO
+        print(f"⚖️ Skipping unchanged: {rel_path}")
         return
 
     os.makedirs(os.path.dirname(tmp_path), exist_ok=True)
@@ -122,7 +133,7 @@ class RagSyncHandler(FileSystemEventHandler):
 
         # Debounce rapid writes
         if rel_path in self.last_synced and now - self.last_synced[rel_path] < self.min_interval:
-            # print(f"⏱️ Skipping rapid re-sync of {rel_path}") # prints into prompt => You: TODO
+            print(f"⏱️ Skipping rapid re-sync of {rel_path}")
             return
 
         self.last_synced[rel_path] = now
@@ -130,8 +141,14 @@ class RagSyncHandler(FileSystemEventHandler):
 
 # ========== Entry Point ==========
 def start_watchdog(path=SRC_DIR):
+    if not os.path.ismount(RAMDISK_ROOT):
+        print(f"❌ Watchdog source path does not exist: {SRC_DIR}")
+        print("⚠️ RAMDISK not mounted. Falling back to HDD.")
+        return
+
     os.makedirs(DST_DIR, exist_ok=True)
     os.makedirs(TEMP_DIR, exist_ok=True)
+
     print(f"👁️ Watching: {path}")
     print(f"📤 Backing up to: {DST_DIR}")
 
