@@ -18,15 +18,15 @@ from config import CHUNK_SIZE, CHUNK_OVERLAP
 from data.filter import clean_text
 from data.jsonhandler import load_normalization_map, apply_normalization, detect_potential_ocr_errors
 
-# === Custom Safe Loader for .txt ===
+# ========== Custom Safe Loader for .txt ==========
 class SafeTextLoader(TextLoader):
     def __init__(self, file_path):
         super().__init__(file_path, encoding='iso-8859-1', autodetect_encoding=False)
 
-# === Text Splitter ===
+# ========== Text Splitter ==========
 splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
 
-# === Chunking Logic ===
+# ========== Chunking Logic ==========
 def split_into_chunks(text: str, update_map: bool = False) -> list[str]:
     print("[DEBUG] Starting split_into_chunks")
     cleaned = clean_text(text)
@@ -60,7 +60,7 @@ def split_into_chunks(text: str, update_map: bool = False) -> list[str]:
     print("[DEBUG] Splitting with text splitter")
     return [doc.page_content for doc in splitter.split_documents([Document(page_content=cleaned)])]
 
-# === Loaders ===
+# ========== Loaders ==========
 
 # --- .doc loader (fallback using unstructured) ---
 class UnstructuredDocLoader:
@@ -186,7 +186,7 @@ class PyPDFLoaderWithPassword(PyPDFLoader):
         texts = [page.extract_text() or "" for page in reader.pages]
         return [Document(page_content="\n".join(texts))]
 
-# === Loader Dispatcher ===
+# ========== Loader Dispatcher ==========
 def detect_and_load_text(file_path: str, pdf_password: str = None) -> list[Document] | None:
     ext = os.path.splitext(file_path)[-1].lower()
 

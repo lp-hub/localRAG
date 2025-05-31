@@ -11,7 +11,7 @@ Creation of default normalization_map.json
 To update it constantly, call map in chunker
 Also check main.py
 '''
-# === Constants ===
+# ========== Constants ==========
 BASE_DIR = Path(__file__).parent
 JSON_PATH = (BASE_DIR / "../../db/normalization_map.json").resolve()
 DEFAULT_STRUCTURE = {
@@ -42,7 +42,7 @@ DEFAULT_STRUCTURE = {
     }
 }
 
-# === Logging ===
+# ========== Logging ==========
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
@@ -50,7 +50,7 @@ formatter = logging.Formatter('%(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-# === File Handling ===
+# ========== File Handling ==========
 def ensure_normalization_json(path: Path = JSON_PATH, force=False):
     if not force and not path.exists():
         raise RuntimeError(f"[Abort] normalization_map.json missing: {path}")
@@ -87,7 +87,7 @@ def save_normalization_map(data: dict, path: Path = JSON_PATH):
     except Exception as e:
         logger.error(f"Error saving normalization map to {path}: {e}")
 
-# === Apply Normalization ===
+# ========== Apply Normalization ==========
 def apply_normalization(text: str, norm_map: dict) -> str:
     for cat in ["ligatures", "punctuation"]:
         for bad, good in norm_map.get(cat, {}).items():
@@ -101,7 +101,7 @@ def apply_regex_normalization(text: str, regex_rules: list[tuple[str, str]]) -> 
         text = re.sub(pattern, repl, text)
     return text
 
-# === OCR artifacts handling ===
+# ========== OCR artifacts handling ==========
 from rapidfuzz import fuzz
 # fuzz.ratio() returns an integer between 0 and 100, so divide by 100 
 # to get the 0–1 float scale similar to difflib. RapidFuzz is much faster.
@@ -152,7 +152,7 @@ def update_ocr_fixes(new_fixes: dict[str, str]) -> None:
         pattern = fr"\b{re.escape(bad)}\b"
         add_normalization_entry("ocr_artifacts", pattern, good)
 
-# === Add/Edit Entry ===
+# ========== Add/Edit Entry ==========
 def add_normalization_entry(category: str, bad: str, good: str, path: str = JSON_PATH):
     
     data = load_normalization_map(path, create_if_missing=False)

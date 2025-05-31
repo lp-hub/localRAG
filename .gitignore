@@ -21,6 +21,7 @@ logs/
 # Local config / secrets
 corrector/
 extractor/
+parser/
 scripts/
 .env
 *.secret

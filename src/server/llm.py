@@ -31,7 +31,7 @@ print(f"CUDA available: {torch.cuda.is_available()}")  # True
 print(torch.cuda.get_device_name(0)) 
 print("Loading...")
 
-# === Start LLM Server ===
+# ========== Start LLM Server ==========
 def start_llama_server():
     if not os.path.exists(START_LAMMA):
         raise FileNotFoundError(f"Script not found: {START_LAMMA}")
@@ -48,7 +48,7 @@ def start_llama_server():
         print(f"[Error] Failed to start llama-server: {e}")
 
 
-# === Connect LLM Server ===
+# ========== Connect LLM Server ==========
 class LlamaCppServerClient(LLM):
     server_url: str = Field(default=SERVER_URL)
     max_tokens: int = 128
@@ -72,7 +72,7 @@ class LlamaCppServerClient(LLM):
         # This depends on your server's JSON format; adjust as necessary
         return data["choices"][0]["text"]
 
-# === LLM Generation ===
+# ========== LLM Generation ==========
 def generate_answer(question, context):
     prompt = ChatPromptTemplate.from_template(
         "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n"
@@ -88,13 +88,13 @@ def generate_answer(question, context):
     # print("[DEBUG] Invoking LLM with context length:", len(context))
     return chain.invoke({"question": question, "context": context})
 
-# === RAG Pipeline (Retrieval-Augmented Generation) with PROVENANCE ===
+# ========== RAG Pipeline (Retrieval-Augmented Generation) with PROVENANCE ==========
 def run_rag(question: str, retriever: str) -> tuple[list[str], str]:
     # Run the RAG pipeline with provenance, returning source paths and answer.
     sources, answer = run_rag_with_provenance(question, retriever)
     return sources, answer
 
-# === CLI Argument Parsing ===
+# ========== CLI Argument Parsing ==========
 def parse_args():
     parser = argparse.ArgumentParser(description="Local RAG CLI with FAISS and LLaMA")
     parser.add_argument("--data-dir", type=str, default=DATA_DIR, help="Directory with input documents")

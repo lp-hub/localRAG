@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# === CONFIGURATION ===
+# ========== CONFIGURATION ==========
 LLAMA_BIN="/llama.cpp/build/bin/llama-server"
 MODEL_PATH="/models/LLama-3-8b-Uncensored.Q8_0.gguf"
 PORT=8080
@@ -9,7 +9,7 @@ GPU_LAYERS=36
 HOST="127.0.0.1"
 EXTRA_FLAGS="--mlock --no-mmap"
 
-# === VALIDATION ===
+# ========== VALIDATION ==========
 if [ ! -f "$LLAMA_BIN" ]; then
   echo "[Error] llama-server binary not found at: $LLAMA_BIN"
   exit 1
@@ -20,7 +20,7 @@ if [ ! -f "$MODEL_PATH" ]; then
   exit 1
 fi
 
-# === LAUNCH ===
+# ========== LAUNCH ==========
 echo "[Info] Starting llama-server..."
 echo "[Info] Model: $MODEL_PATH"
 echo "[Info] Port: $PORT, GPU Layers: $GPU_LAYERS, Context: $CTX_SIZE"
