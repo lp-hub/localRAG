@@ -110,6 +110,13 @@ localRAG
 ├── logs
 ├── scripts
 ├── src
+│   ├── context
+│   │   ├── chunker.py
+│   │   ├── formatter.py
+│   │   ├── loaders.py
+│   │   ├── provenance.py
+│   │   ├── retriever.py
+│   │   └── store.py
 │   ├── data
 │   │   ├── ui
 │   │   │   ├── admin.py
@@ -120,19 +127,13 @@ localRAG
 │   │   ├── filter.py
 │   │   ├── jsonhandler.py
 │   │   └── map.py
-│   ├── ingest
-│   │   ├── chunker.py
-│   │   └── formatter.py
-│   ├── know
-│   │   ├── provenance.py
-│   │   ├── retriever.py
-│   │   └── store.py
 │   ├── server
 │   │   ├── llm.py
 │   │   ├── logger.py
 │   │   ├── mount_ramdisk.sh
 │   │   ├── ramdisk.py
-│   │   └── start_llama_server.sh
+│   │   ├── start_llama_server.sh
+│   │   └── watchdog.py
 │   ├── config.py
 │   ├── main.py
 │   └── webui.py
