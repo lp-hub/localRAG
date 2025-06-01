@@ -11,7 +11,7 @@ from langchain.llms.base import LLM
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-from know.provenance import run_rag_with_provenance
+from context.provenance import run_rag_with_provenance
 from config import DATA_DIR, DB_DIR, START_LAMMA
 
 LLAMA_SERVER_HOST = "127.0.0.1"

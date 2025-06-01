@@ -6,9 +6,9 @@ from data import insert_document,insert_chunks, get_existing_hashes
 from config import EMBED_MODEL_NAME, GARBAGE_THRESHOLD
 from langchain.schema import Document
 
-from ingest.chunker import detect_and_load_text
+from context.loaders import detect_and_load_text
 
-#For large files, consider reading in chunks:
+# For large files, consider reading in chunks:
 def hash_file(file_path):
     h = hashlib.md5()
     with open(file_path, "rb") as f:
@@ -59,8 +59,8 @@ def is_trash(chunk):
     return False
 
 def chunk_documents(data_dir: str, split_func: callable) -> list[Document]:
-    """Load files from data_dir, extract and chunk text, filter trash,
-    and return list of Document objects with metadata."""
+    """ Load files from data_dir, extract and chunk text, filter trash,
+        and return list of Document objects with metadata."""
     docs = []
     existing_hashes = get_existing_hashes()
 
