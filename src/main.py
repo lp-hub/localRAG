@@ -7,9 +7,9 @@ from server.llm import run_rag, parse_args, start_llama_server
 from server.logger import log_exception
 from server.ramdisk import mount_ramdisk, copy_to_ramdisk, safe_load
 from server.watchdog import start_watchdog
-from know.retriever import chunk_documents
-from know.store import create_vector_store, load_vector_store
-from ingest.chunker import split_into_chunks
+from context.retriever import chunk_documents
+from context.store import create_vector_store, load_vector_store
+from context.chunker import split_into_chunks
 
 # from config import EMBED_MODEL_SNAPHOTS, EMBED_MODEL_NAME_PATH, EMBED_MODEL_NAME # imported from .env
 

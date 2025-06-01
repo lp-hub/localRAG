@@ -15,6 +15,7 @@ env/
 ENV/
 
 # Logs and runtime
+.tmp_sync/
 logs/
 *.log
 
