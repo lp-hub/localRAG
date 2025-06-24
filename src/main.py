@@ -23,32 +23,28 @@ embed_model_dir = safe_load("RAM_EMBED_MODEL_NAME_PATH", "EMBED_MODEL_NAME_PATH"
 # print(">>>" + embed_model_dir)
 
 # ========== RAG loading ==========
-def setup_retriever():
-    print(f"Setting up retriever with DB dir: {db_dir}") # and Data dir: {data_dir}")
-    args = parse_args()
+def setup_retriever(args):
+    topic = args.topic
+    data_path = os.path.join(args.data_dir, topic)
+    db_path = os.path.join(args.db_dir, topic)
 
-    # Override args.db_dir and args.data_dir with RAM disk paths for speed
-    args.db_dir = db_dir
-    # args.data_dir = data_dir
+    print(f"Using data dir: {data_path}")
+    print(f"Using db dir: {db_path}")
+
+    if args.rebuild_db:
+        os.makedirs(db_path, exist_ok=True)
 
     # Consistent check for critical files
     # print(f"Checking if metadata DB exists at: {args.db_dir}")
-    metadata_exists = not is_metadata_db_empty()
-    faiss_exists = os.path.exists(os.path.join(args.db_dir, "index.faiss"))
+    metadata_path = os.path.join(db_path, "metadata.db")
+    faiss_path = os.path.join(db_path, "index.faiss")
+    metadata_exists = os.path.exists(metadata_path)
+    faiss_exists = os.path.exists(faiss_path)
     # print(f"Metadata exists: {metadata_exists}, FAISS index exists: {faiss_exists}")
-
-    if not metadata_exists or not faiss_exists:
-        if not args.rebuild_db:
-            print("[Eror] Missing metadata.db or FAISS index.")
-            print("[Hint] Run with --rebuild-db to regenerate database and index.")
-            sys.exit(1)
-
-    init_db(rebuild=args.rebuild_db)
-    print("Database initialized.")
 
     # Use embed_model_dir from earlier safe_load()
     if not embed_model_dir:
-        print("[Fatal] No valid embedding model directory found. Check your environment variables.")
+        print("[Fatal] EMBED_MODEL_NAME_PATH not set. Check your .env or environment.")
         sys.exit(1)
 
     embedding = HuggingFaceEmbeddings(
@@ -58,24 +54,48 @@ def setup_retriever():
         # # This line forces it to use Transformers backend instead of SentenceTransformers
         # cache_folder=None,  # optional, to prevent slow re-download
     )
-
     print(f"Loading embedding model: {embed_model_dir}")
     print(f"Embedding dimension: {len(embedding.embed_query('test'))}")
 
-    if args.rebuild_db or is_metadata_db_empty() or not os.path.exists(os.path.join(args.db_dir, "index.faiss")):
-        chunks = chunk_documents(args.data_dir, lambda text: split_into_chunks(text, update_map=args.rebuild_db))
-        print(f"[Info] {len(chunks)} good chunks indexed.")
+    if not metadata_exists or not faiss_exists:
+        if not (args.rebuild_db or args.rebuild_index):
+            print("[Error] Missing metadata.db or FAISS index.")
+            print("[Hint] Run with --rebuild-db or --rebuild-index to initialize database and index.")
+            sys.exit(1)
 
+    init_db(rebuild=args.rebuild_db or not metadata_exists)
+    print("Database initialized.")
+
+    # When to regenerate chunks and build index
+    if args.rebuild_db or args.rebuild_index or not faiss_exists:
+        # Only init_db (creates schema) when DB is new or full rebuild requested
+        if not metadata_exists:
+            init_db(rebuild=True)
+        elif args.rebuild_db:
+            init_db(rebuild=True)
+        else:
+            init_db(rebuild=False)
+
+        chunks = chunk_documents(data_path, lambda text, path: split_into_chunks(text, update_map=True, filename=path))
         if not chunks:
             raise ValueError("No chunks found. Check your data directory or chunking logic.")
-        return create_vector_store(args.db_dir, chunks, embedding)
+        print(f"[Info] {len(chunks)} chunks indexed.")
+        return create_vector_store(db_path, chunks, embedding)
     else:
-        return load_vector_store(args.db_dir, embedding)
+        return load_vector_store(db_path, embedding)
+    
+# First time (wipe everything):
+# python src/main.py --topic tech --rebuild-db
+# Resume interrupted session, add new files only, keep
+# python src/main.py --topic tech --rebuild-index
+# Normal usage (nothing is rebuilt unless missing):
+# python src/main.py --topic tech
 
 # ========== Ensure setup_retriever() is used ==========
 def main():
     args = parse_args()
-    retriever = setup_retriever()    
+    os.environ["TOPIC"] = args.topic
+    retriever = setup_retriever(args)
     print("=== Local RAG Client Ready ===")
     print("Use this program to ask questions over your document database.")
     print("Interactive RAG CLI started. Type 'exit' to quit.")

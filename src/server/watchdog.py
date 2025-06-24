@@ -133,7 +133,7 @@ class RagSyncHandler(FileSystemEventHandler):
 
         # Debounce rapid writes
         if rel_path in self.last_synced and now - self.last_synced[rel_path] < self.min_interval:
-            print(f"⏱️ Skipping rapid re-sync of {rel_path}")
+            # print(f"⏱️ Skipping rapid re-sync of {rel_path}")
             return
 
         self.last_synced[rel_path] = now
