@@ -8,6 +8,16 @@ from langchain.schema import Document
 
 from context.loaders import detect_and_load_text
 
+# Encoding handling
+def read_file_safely(path: str) -> str:
+    for enc in ["utf-8", "cp1251", "koi8_r", "utf-16"]:
+        try:
+            with open(path, "r", encoding=enc) as f:
+                return f.read()
+        except UnicodeDecodeError:
+            continue
+    raise UnicodeDecodeError(f"Failed to decode file: {path}")
+
 # For large files, consider reading in chunks:
 def hash_file(file_path):
     h = hashlib.md5()
@@ -79,12 +89,18 @@ def chunk_documents(data_dir: str, split_func: callable) -> list[Document]:
             if not docs_from_loader:
                 print(f"[SKIP] Unsupported file type: {path}")
                 continue
-            text = "\n\n".join(doc.page_content for doc in docs_from_loader)
+
+            if path.suffix.lower() == ".txt":
+                print(f"[DEBUG] Reading {path} using read_file_safely")
+                text = read_file_safely(path)
+            else:
+                text = "\n\n".join(doc.page_content for doc in docs_from_loader)
+            
         except Exception as e:
             print(f"[ERROR] Cannot load file {path}: {e}")
             continue
 
-        chunks = split_func(text)
+        chunks = split_func(text, path)
         if not chunks:
             print(f"[SKIP] No chunks extracted: {path}")
             continue

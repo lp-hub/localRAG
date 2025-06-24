@@ -100,4 +100,13 @@ def parse_args():
     parser.add_argument("--data-dir", type=str, default=DATA_DIR, help="Directory with input documents")
     parser.add_argument("--db-dir", type=str, default=DB_DIR, help="Directory to store/load FAISS index")
     parser.add_argument("--rebuild-db", action="store_true", help="Force rebuild of FAISS vector store")
+    parser.add_argument("--rebuild-index", action="store_true", help="Rebuild FAISS index without wiping DB")
+    parser.add_argument("--topic", type=str, default="default", help="Subdirectory for specific topic context")
     return parser.parse_args()
+
+# If you want to index documents in data/tech and store vectors in db/tech, run:
+# python main.py \
+#   --topic tech \
+#   --data-dir ./data \
+#   --db-dir ./db \
+#   --rebuild-db

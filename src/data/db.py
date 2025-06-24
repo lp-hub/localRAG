@@ -6,14 +6,15 @@ import sys
 from datetime import datetime
 from data.jsonhandler import ensure_normalization_json, JSON_PATH
 
-DB_PATH = Path("db/metadata.db")
+def db_path():
+    return Path("db") / os.getenv("TOPIC", "default") / "metadata.db"
 
 def is_metadata_db_empty() -> bool:
     """Check if metadata.db exists and contains chunks."""
-    if not DB_PATH.exists():
+    if not db_path().exists():
         return True
     try:
-        with sqlite3.connect(DB_PATH) as conn:
+        with sqlite3.connect(db_path()) as conn:
             cur = conn.cursor()
             cur.execute("SELECT COUNT(*) FROM chunks")
             return cur.fetchone()[0] == 0
@@ -22,13 +23,13 @@ def is_metadata_db_empty() -> bool:
 
 def backup_old_db():
     """Back up the existing metadata.db before overwriting."""
-    if not DB_PATH.exists():
+    if not db_path().exists():
         print("[Warn] backup_old_db() called, but metadata.db does not exist.")
         return
     try:
         timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        backup_path = DB_PATH.with_name(f"metadata_{timestamp}.db")
-        shutil.move(DB_PATH, backup_path)
+        backup_path = db_path().with_name(f"metadata_{timestamp}.db")
+        shutil.move(db_path(), backup_path)
         print(f"[Backup] Old DB moved to: {backup_path}")
     except Exception as e:
         print(f"[Error] Failed to back up old DB: {e}")
@@ -43,15 +44,15 @@ def init_db(rebuild=False) -> sqlite3.Connection:
     if rebuild:
         ensure_normalization_json(force=True)
 
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True) # create db directory
+    db_path().parent.mkdir(parents=True, exist_ok=True) # create db directory
 
-    db_already_exists = DB_PATH.exists()
+    db_already_exists = db_path().exists()
 
     if rebuild:
         if db_already_exists:
             try:
                 backup_old_db()
-                DB_PATH.unlink() # Might raise FileNotFoundError if backup moved it
+                db_path().unlink() # Might raise FileNotFoundError if backup moved it
                 print("[Info] Deleted existing metadata.db")
             except FileNotFoundError:
                 print("[Warn] Tried to delete metadata.db, but it was already missing.")
@@ -61,9 +62,9 @@ def init_db(rebuild=False) -> sqlite3.Connection:
         else:
             print("[Info] No existing DB found — skipping backup and deletion.")
     
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path())
     if db_already_exists:
-        print(f"Loaded existing metadata: {DB_PATH.name}")
+        print(f"Loaded existing metadata: {db_path().name}")
     else:
         print(f"[Info] Creating new metadata.db")
     cur = conn.cursor()
@@ -114,6 +115,14 @@ def get_existing_hashes():
 def insert_document(path, title, hash_, source_type, embedding_model):
     conn = init_db()
     cur = conn.cursor()
+
+    # Try to fetch existing document ID by hash
+    cur.execute("SELECT id FROM documents WHERE hash = ?", (hash_,))
+    existing = cur.fetchone()
+    if existing:
+        return existing[0]  # document already exists
+
+    # If not found, insert new document
     cur.execute('''
         INSERT INTO documents (path, title, hash, timestamp, source_type, embedding_model)
         VALUES (?, ?, ?, datetime('now'), ?, ?)
@@ -124,6 +133,13 @@ def insert_document(path, title, hash_, source_type, embedding_model):
 def insert_chunks(doc_id, chunks: list[tuple[str, dict]]):
     conn = init_db()
     cur = conn.cursor()
+
+    # Optional: Check if chunks already exist for this doc_id
+    cur.execute("SELECT COUNT(*) FROM chunks WHERE document_id = ?", (doc_id,))
+    if cur.fetchone()[0] > 0:
+        print(f"[Skip] Chunks already exist for doc_id {doc_id}")
+        return
+    
     cur.executemany('''
         INSERT INTO chunks (document_id, chunk_index, content)
         VALUES (?, ?, ?)
