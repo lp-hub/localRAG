@@ -1,37 +1,32 @@
+from time import time
 from langchain_community.vectorstores import FAISS
 
-
-def create_vector_store(db_dir, chunks, embedding):
-    """
-    Create a FAISS vector store from document chunks and save it locally.
-    Args:
-        db_dir (str): Directory path where FAISS index will be saved.
-        chunks (list): List of LangChain Document chunks.
-        embedding (Embedding model): Embedding function/model to vectorize documents.
-    Returns:
-        retriever: A retriever object that enables querying the vector store.
-    """
+# Create a FAISS vector store from document chunks and save it locally.
+def create_vector_store(db_dir, chunks, embedding):    
     if not chunks:      
         raise ValueError("No document chunks provided for vector store creation.")
                 
     print("Creating vector store with FAISS...")
-    vectorstore = FAISS.from_documents(documents=chunks, embedding=embedding)
-    vectorstore.save_local(db_dir)
-    return vectorstore.as_retriever()
+    start = time()
+    try: 
+        vectorstore = FAISS.from_documents(documents=chunks, embedding=embedding)
+        vectorstore.save_local(db_dir)
+        elapsed = time() - start
+        print(f"[FAISS] Vector store saved to {db_dir} in {elapsed:.2f} seconds.")
+        return vectorstore.as_retriever()
+    except Exception as e:
+        print(f"[ERROR] Failed to create FAISS vector store: {e}")
+        raise
 
-
+# Load an existing FAISS vector store from local disk.
 def load_vector_store(db_dir, embedding):
-    """
-    Load an existing FAISS vector store from local disk.
-    Args:
-        db_dir (str): Directory path where FAISS index is stored.
-        embedding (Embedding model): Embedding function/model used during index creation.
-    Returns:
-        retriever: A retriever object for querying the loaded vector store.
-    """
-    print("Loading existing FAISS vector store...")
-    return FAISS.load_local(
-        db_dir,
-        embeddings=embedding,
-        allow_dangerous_deserialization=True  # Needed due to known safety issues in deserialization
-    ).as_retriever()
+    print(f"[FAISS] Loading vector store from {db_dir}...")
+    try:
+        return FAISS.load_local(
+            db_dir,
+            embeddings=embedding,
+            allow_dangerous_deserialization=True
+        ).as_retriever()
+    except Exception as e:
+        print(f"[ERROR] Failed to load FAISS index: {e}")
+        raise
