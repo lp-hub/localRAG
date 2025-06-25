@@ -7,7 +7,7 @@ from server.llm import run_rag, parse_args, start_llama_server
 from server.logger import log_exception
 from server.ramdisk import mount_ramdisk, copy_to_ramdisk, safe_load
 from server.watchdog import start_watchdog
-from context.retriever import chunk_documents
+from context.retriever import chunk_documents, write_stats
 from context.store import create_vector_store, load_vector_store
 from context.chunker import split_into_chunks
 
@@ -77,8 +77,17 @@ def setup_retriever(args):
             init_db(rebuild=False)
 
         chunks = chunk_documents(data_path, lambda text, path: split_into_chunks(text, update_map=True, filename=path))
+
         if not chunks:
             raise ValueError("No chunks found. Check your data directory or chunking logic.")
+        
+        write_stats(
+            doc_count=len({doc.metadata['doc_id'] for doc in chunks}),
+            chunk_count=len(chunks),
+            topic=topic,
+            model_name=os.getenv("EMBED_MODEL_SNAPHOTS")
+        )
+
         print(f"[Info] {len(chunks)} chunks indexed.")
         return create_vector_store(db_path, chunks, embedding)
     else:

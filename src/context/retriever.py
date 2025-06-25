@@ -1,12 +1,29 @@
-import hashlib
-import string
 
+import hashlib
+import json
+import string
+from datetime import datetime
 from pathlib import Path
+
 from data import insert_document,insert_chunks, get_existing_hashes
 from config import EMBED_MODEL_NAME, GARBAGE_THRESHOLD
 from langchain.schema import Document
 
 from context.loaders import detect_and_load_text
+
+# Metadata summary
+def write_stats(doc_count, chunk_count, topic, model_name):
+    stats = {
+        "topic": topic,
+        "documents_indexed": doc_count,
+        "chunks_total": chunk_count,
+        "last_updated": datetime.now().isoformat(timespec='seconds'),
+        "embedding_model": model_name,
+    }
+    stats_path = Path("db") / topic / "stats.json"
+    with open(stats_path, "w", encoding="utf-8") as f:
+        json.dump(stats, f, indent=2)
+    print(f"[INFO] Stats written to {stats_path}")
 
 # Encoding handling
 def read_file_safely(path: str) -> str:
