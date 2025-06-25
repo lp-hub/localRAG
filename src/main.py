@@ -83,7 +83,7 @@ def setup_retriever(args):
 
     if new_files:
         print(f"[DB] Found {len(new_files)} new files to index.")
-        chunk_documents(data_path, lambda text, path: split_into_chunks(text, update_map=True, filename=path))
+        chunk_documents(data_path, lambda text, path: split_into_chunks(text, filename=path))
     else:
         print("[DB] No new files to index. Skipping chunking.")
 
