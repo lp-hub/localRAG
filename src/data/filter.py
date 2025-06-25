@@ -6,16 +6,22 @@ spell = SpellChecker()
 from data.jsonhandler import apply_normalization, load_normalization_map
 
 # ========== Load Normalization Rules ==========
-normalization_rules = load_normalization_map(create_if_missing=False) # Print loading/failure message
+_normalization_rules_cache = None
 '''
 The normalization JSON is used here to clean and normalize 
 the entire raw text (fixing ligatures, punctuation, OCR artifacts, etc).
 This filtered text is cleaned and normalized, ready to be chunked.
 '''
+def normalization_rules():
+    global _normalization_rules_cache
+    if _normalization_rules_cache is None:
+        _normalization_rules_cache = load_normalization_map(create_if_missing=False)
+    return _normalization_rules_cache
+
 def normalize_unicode(text: str) -> str:
     text = ftfy.fix_text(text)
     text = unicodedata.normalize("NFKC", text)
-    return apply_normalization(text, normalization_rules)
+    return apply_normalization(text, normalization_rules())
 
 # Export to chunker >>>
 def clean_text(raw: str) -> str:

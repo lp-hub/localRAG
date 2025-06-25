@@ -5,7 +5,6 @@ import sqlite3
 import sys
 from datetime import datetime
 from langchain.schema import Document
-from data.jsonhandler import ensure_normalization_json, JSON_PATH
 
 def db_path():
     return Path("db") / os.getenv("TOPIC", "default") / "metadata.db"
@@ -37,14 +36,6 @@ def backup_old_db():
 
 def init_db(rebuild=False) -> sqlite3.Connection:
     """Initialize the SQLite database and schema."""
-    if not JSON_PATH.exists() and not rebuild:
-        print(f"[Error] Normalization map not found at {JSON_PATH}")
-        print("[Hint] Run with --rebuild-db to generate it.")
-        sys.exit(1)
-
-    if rebuild:
-        ensure_normalization_json(force=True)
-
     db_path().parent.mkdir(parents=True, exist_ok=True) # create db directory
 
     db_already_exists = db_path().exists()
