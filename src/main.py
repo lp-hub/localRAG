@@ -1,13 +1,14 @@
 import os
 import sys
+from pathlib import Path
 from langchain_huggingface import HuggingFaceEmbeddings
 
-from data.db import init_db, is_metadata_db_empty
+from data.db import init_db, is_metadata_db_empty, get_existing_hashes, get_all_chunks
 from server.llm import run_rag, parse_args, start_llama_server
 from server.logger import log_exception
 from server.ramdisk import mount_ramdisk, copy_to_ramdisk, safe_load
 from server.watchdog import start_watchdog
-from context.retriever import chunk_documents, write_stats
+from context.retriever import chunk_documents, hash_file, write_stats
 from context.store import create_vector_store, load_vector_store
 from context.chunker import split_into_chunks
 
@@ -31,16 +32,15 @@ def setup_retriever(args):
     print(f"Using data dir: {data_path}")
     print(f"Using db dir: {db_path}")
 
-    if args.rebuild_db:
-        os.makedirs(db_path, exist_ok=True)
+    os.makedirs(db_path, exist_ok=True)
 
     # Consistent check for critical files
-    # print(f"Checking if metadata DB exists at: {args.db_dir}")
+    print(f"Checking if metadata DB exists at: {args.db_dir}")
     metadata_path = os.path.join(db_path, "metadata.db")
     faiss_path = os.path.join(db_path, "index.faiss")
     metadata_exists = os.path.exists(metadata_path)
     faiss_exists = os.path.exists(faiss_path)
-    # print(f"Metadata exists: {metadata_exists}, FAISS index exists: {faiss_exists}")
+    print(f"Metadata exists: {metadata_exists}, FAISS index exists: {faiss_exists}")
 
     # Use embed_model_dir from earlier safe_load()
     if not embed_model_dir:
@@ -57,56 +57,50 @@ def setup_retriever(args):
     print(f"Loading embedding model: {embed_model_dir}")
     print(f"Embedding dimension: {len(embedding.embed_query('test'))}")
 
+    # ========== Step 0: Check if critical files exist ==========
     if not metadata_exists or not faiss_exists:
         if not (args.rebuild_db or args.rebuild_index):
             print("[Error] Missing metadata.db or FAISS index.")
             print("[Hint] Run with --rebuild-db or --rebuild-index to initialize database and index.")
             sys.exit(1)
 
-    # Check if DB file exists AND contains data
+    # ========== Step 1: Ensure DB exists ==========
     metadata_empty = not metadata_exists or is_metadata_db_empty()
+    need_rebuild = args.rebuild_db or metadata_empty
 
-    if args.rebuild_db or metadata_empty:
-        print("[DB] (Re)initializing metadata.db")
-        init_db(rebuild=True)
+    print(f"[DB] {'(Re)initializing' if need_rebuild else 'Using existing'} metadata.db")
+    init_db(rebuild=need_rebuild)
+
+    # ========== Step 2: Index files if needed ==========
+    new_files = []
+    existing_hashes = get_existing_hashes()
+
+    for path in Path(data_path).rglob("*"):
+        if not path.is_file():
+            continue
+        if hash_file(path) not in existing_hashes:
+            new_files.append(path)
+
+    if new_files:
+        print(f"[DB] Found {len(new_files)} new files to index.")
+        chunk_documents(data_path, lambda text, path: split_into_chunks(text, update_map=True, filename=path))
     else:
-        print("[DB] Using existing metadata.db")
-        init_db(rebuild=False)
+        print("[DB] No new files to index. Skipping chunking.")
 
-    # When to regenerate chunks and build index
-    if args.rebuild_db or args.rebuild_index or not faiss_exists:
-        # Only init_db (creates schema) when DB is new or full rebuild requested
-        if not metadata_exists:
-            init_db(rebuild=True)
-        elif args.rebuild_db:
-            init_db(rebuild=True)
-        else:
-            init_db(rebuild=False)
+    # === Step 3: Load all chunks from DB ===
+    chunks = get_all_chunks(topic)
+    if not chunks:
+        raise ValueError("No chunks available to build FAISS index.")
 
-        if args.rebuild_db:
-            init_db(rebuild=True)
-            chunks = chunk_documents(data_path, lambda text, path: split_into_chunks(text, update_map=True, filename=path))
-        elif args.rebuild_index or not faiss_exists:
-            print("[DB] Skipping chunking. Loading from metadata.db instead...")
-            from data.db import get_all_chunks
-            chunks = get_all_chunks(topic)
-        else:
-            chunks = []  # Should never reach here
-
-        if not chunks:
-            raise ValueError("No chunks available to build FAISS index.")        
-        
-        write_stats(
-            doc_count=len({doc.metadata['doc_id'] for doc in chunks}),
-            chunk_count=len(chunks),
-            topic=topic,
-            model_name=os.getenv("EMBED_MODEL_SNAPHOTS")
-        )
-
-        print(f"[Info] {len(chunks)} chunks indexed.")
-        return create_vector_store(db_path, chunks, embedding)
-    else:
-        return load_vector_store(db_path, embedding)
+    # === Step 4: Write stats and build index ===
+    write_stats(
+        doc_count=len({doc.metadata['doc_id'] for doc in chunks}),
+        chunk_count=len(chunks),
+        topic=topic,
+        model_name=os.getenv("EMBED_MODEL_SNAPHOTS")
+    )
+    print(f"[Info] {len(chunks)} chunks indexed.")
+    return create_vector_store(db_path, chunks, embedding) if args.rebuild_index or not faiss_exists else load_vector_store(db_path, embedding)
     
 # First time (wipe everything):
 # python src/main.py --topic tech --rebuild-db
