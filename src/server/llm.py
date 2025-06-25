@@ -102,6 +102,7 @@ def parse_args():
     parser.add_argument("--rebuild-db", action="store_true", help="Force rebuild of FAISS vector store")
     parser.add_argument("--rebuild-index", action="store_true", help="Rebuild FAISS index without wiping DB")
     parser.add_argument("--topic", type=str, default="default", help="Subdirectory for specific topic context")
+    parser.add_argument("--ocr-skip", action="store_true", help="Disable OCR artifact detection")
     return parser.parse_args()
 
 # If you want to index documents in data/tech and store vectors in db/tech, run:

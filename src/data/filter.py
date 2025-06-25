@@ -1,7 +1,8 @@
+import ftfy
+import langdetect
 import os
 import re
 import unicodedata
-import ftfy
 from datetime import datetime
 from spellchecker import SpellChecker
 spell = SpellChecker()
@@ -25,7 +26,6 @@ def normalize_unicode(text: str) -> str:
     text = unicodedata.normalize("NFKC", text)
     return apply_normalization(text, normalization_rules())
 
-# Export to chunker >>>
 def clean_text(raw: str) -> str:
     print(f"[Cleaning] Input length: {len(raw)}")
     text = normalize_unicode(raw)
@@ -45,9 +45,14 @@ def clean_text(raw: str) -> str:
     print(f"[Cleaning] Output length: {len(text)}")
     return text
 
-# Export to chunker >>>
 def is_clean_text(text: str, max_misspelled_ratio: float = 0.01, sample_size: int = 200) -> bool:
-    words = re.findall(r"\b[a-zA-Z]{4,}\b", text)
+    lang = langdetect.detect(text) # solves Cyrillic false positive problem cleanly and early
+    if lang not in ("en", "fr", "de"):  # spellchecker trained on English only
+        print(f"[SKIP] Spellcheck skipped for lang={lang}")
+        return True
+    # words = re.findall(r"\b[a-zA-Z]{4,}\b", text)
+    # Count real words in any language using \w, and filtering out garbage with .isalpha().
+    words = [w for w in re.findall(r"\b\w{4,}\b", text, flags=re.UNICODE) if w.isalpha()]
     sample = words[:sample_size]
     misspelled = spell.unknown(sample)
     ratio = len(misspelled) / len(sample) if sample else 0
