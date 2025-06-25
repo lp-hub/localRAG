@@ -4,6 +4,7 @@ import shutil
 import sqlite3
 import sys
 from datetime import datetime
+from langchain.schema import Document
 from data.jsonhandler import ensure_normalization_json, JSON_PATH
 
 def db_path():
@@ -157,3 +158,33 @@ def fetch_metadata_by_content(content_substring):
     ''', (f"%{content_substring[:50]}%",))
     row = cur.fetchone()
     return {"title": row[0], "timestamp": row[1], "path": row[2]} if row else {}
+
+def get_all_chunks(topic: str) -> list[Document]:
+    """Fetch all chunks from DB as LangChain Document objects with metadata."""
+    db_file = Path("db") / topic / "metadata.db"
+    if not db_file.exists():
+        print(f"[Error] metadata.db not found for topic: {topic}")
+        return []
+
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+    cur.execute('''
+        SELECT c.content, c.chunk_index, d.id, d.path, d.title
+        FROM chunks c
+        JOIN documents d ON c.document_id = d.id
+        ORDER BY d.id, c.chunk_index
+    ''')
+
+    rows = cur.fetchall()
+    return [
+        Document(
+            page_content=content,
+            metadata={
+                "doc_id": doc_id,
+                "path": path,
+                "title": title,
+                "chunk_index": chunk_index,
+            }
+        )
+        for content, chunk_index, doc_id, path, title in rows
+    ]

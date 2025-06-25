@@ -63,8 +63,15 @@ def setup_retriever(args):
             print("[Hint] Run with --rebuild-db or --rebuild-index to initialize database and index.")
             sys.exit(1)
 
-    init_db(rebuild=args.rebuild_db or not metadata_exists)
-    print("Database initialized.")
+    # Check if DB file exists AND contains data
+    metadata_empty = not metadata_exists or is_metadata_db_empty()
+
+    if args.rebuild_db or metadata_empty:
+        print("[DB] (Re)initializing metadata.db")
+        init_db(rebuild=True)
+    else:
+        print("[DB] Using existing metadata.db")
+        init_db(rebuild=False)
 
     # When to regenerate chunks and build index
     if args.rebuild_db or args.rebuild_index or not faiss_exists:
@@ -76,10 +83,18 @@ def setup_retriever(args):
         else:
             init_db(rebuild=False)
 
-        chunks = chunk_documents(data_path, lambda text, path: split_into_chunks(text, update_map=True, filename=path))
+        if args.rebuild_db:
+            init_db(rebuild=True)
+            chunks = chunk_documents(data_path, lambda text, path: split_into_chunks(text, update_map=True, filename=path))
+        elif args.rebuild_index or not faiss_exists:
+            print("[DB] Skipping chunking. Loading from metadata.db instead...")
+            from data.db import get_all_chunks
+            chunks = get_all_chunks(topic)
+        else:
+            chunks = []  # Should never reach here
 
         if not chunks:
-            raise ValueError("No chunks found. Check your data directory or chunking logic.")
+            raise ValueError("No chunks available to build FAISS index.")        
         
         write_stats(
             doc_count=len({doc.metadata['doc_id'] for doc in chunks}),
