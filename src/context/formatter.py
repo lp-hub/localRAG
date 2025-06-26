@@ -1,7 +1,7 @@
 # ========== Retrieval Helpers ==========
 
 def retrieve_documents(retriever, question):
-    return retriever.get_relevant_documents(question)
+    return retriever.get_relevant_documents(question, k=50)
 
 def format_context(docs): 
     # Format retrieved documents into a single string to provide context for LLM input.

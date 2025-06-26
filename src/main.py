@@ -72,20 +72,23 @@ def setup_retriever(args):
     init_db(rebuild=need_rebuild)
 
     # ========== Step 2: Index files if needed ==========
-    new_files = []
-    existing_hashes = get_existing_hashes()
+    if args.rebuild_db or args.rebuild_index:
+        new_files = []
+        existing_hashes = get_existing_hashes()
 
-    for path in Path(data_path).rglob("*"):
-        if not path.is_file():
-            continue
-        if hash_file(path) not in existing_hashes:
-            new_files.append(path)
+        for path in Path(data_path).rglob("*"):
+            if not path.is_file():
+                continue
+            if hash_file(path) not in existing_hashes:
+                new_files.append(path)
 
-    if new_files:
-        print(f"[DB] Found {len(new_files)} new files to index.")
-        chunk_documents(data_path, lambda text, path: split_into_chunks(text, filename=path))
+        if new_files:
+            print(f"[DB] Found {len(new_files)} new files to index.")
+            chunk_documents(data_path, lambda text, path: split_into_chunks(text, filename=path))
+        else:
+            print("[DB] No new files to index. Skipping chunking.")
     else:
-        print("[DB] No new files to index. Skipping chunking.")
+        print("[Info] No rebuild flags — skipping file scan.")
 
     # === Step 3: Load all chunks from DB ===
     chunks = get_all_chunks(topic)
