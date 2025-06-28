@@ -1,15 +1,13 @@
-
 import hashlib
 import json
 import string
 from datetime import datetime
 from pathlib import Path
-
-from data import insert_document,insert_chunks, get_existing_hashes
-from config import EMBED_MODEL_NAME, GARBAGE_THRESHOLD
 from langchain.schema import Document
 
+from data import insert_document,insert_chunks, get_existing_hashes
 from context.loaders import detect_and_load_text
+from config import EMBED_MODEL_NAME, GARBAGE_THRESHOLD
 
 # Metadata summary
 def write_stats(doc_count, chunk_count, topic, model_name):

@@ -1,15 +1,16 @@
 import json
 import re
-import os
 import logging
 from pathlib import Path
+from rapidfuzz import fuzz
 from spellchecker import SpellChecker
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 spell = SpellChecker()
 '''
-Creation of default normalization_map.json
-To update it constantly, call map in chunker
-Also check main.py
+    Creation of default normalization_map.json
+    To update it constantly, call map in chunker
+    Also check main.py
 '''
 # ========== Constants ==========
 BASE_DIR = Path(__file__).parent
@@ -102,11 +103,8 @@ def apply_regex_normalization(text: str, regex_rules: list[tuple[str, str]]) -> 
     return text
 
 # ========== OCR artifacts handling ==========
-from rapidfuzz import fuzz
 # fuzz.ratio() returns an integer between 0 and 100, so divide by 100 
 # to get the 0–1 float scale similar to difflib. RapidFuzz is much faster.
-
-from concurrent.futures import ThreadPoolExecutor, as_completed
 def detect_potential_ocr_errors(text: str, similarity_threshold: float = 0.8, max_workers: int = 8) -> dict[str, str]:
     words = set(re.findall(r"\b[a-zA-Z]{4,}\b", text))
     misspelled = spell.unknown(words)
@@ -132,17 +130,16 @@ def detect_potential_ocr_errors(text: str, similarity_threshold: float = 0.8, ma
             result = future.result()
             if result:
                 suggestions[result[0]] = result[1]
-
     return suggestions
-
-def update_ocr_fixes(new_fixes: dict[str, str]) -> None:
-    print("[DEBUG] update_ocr_fixes: start")
-    '''
+'''
     Use data.ocr_updater.update_ocr_fixes({...}) whenever you detect 
     new OCR fixes dynamically — from CLI, scripts, or an admin UI.
     filter.py just cleans and applies the full normalization map, 
     which now includes your updated OCR fixes automatically.
-    '''
+'''
+def update_ocr_fixes(new_fixes: dict[str, str]) -> None:
+    print("[DEBUG] update_ocr_fixes: start")
+
     if not new_fixes:
         logger.info("No new OCR fixes to update.")
         return

@@ -264,12 +264,74 @@ class WordPressXMLLoader:
 
         return documents
 
+# ========== .atom feed loader ==========
+class AtomXMLLoader:
+    def __init__(self, file_path, tags_filter: list[str] = None):
+        self.file_path = file_path
+        self.tags_filter = tags_filter
+
+    @staticmethod
+    def is_atom_feed(file_path):
+        try:
+            tree = ET.parse(file_path)
+            root = tree.getroot()
+            # Atom root must be <feed> in Atom namespace
+            return 'http://www.w3.org/2005/Atom' in root.tag or root.tag.endswith('feed')
+        except Exception:
+            return False
+
+    def load(self) -> list[Document]:
+        tree = ET.parse(self.file_path)
+        root = tree.getroot()
+
+        print(f"[AtomXMLLoader] Root tag: {root.tag}")
+
+        documents = []
+        for entry in root.findall("{http://www.w3.org/2005/Atom}entry"):
+            categories = entry.findall("{http://www.w3.org/2005/Atom}category")
+            tags = [cat.attrib.get("term", "") for cat in categories if cat.attrib.get("term")]
+
+            normalized_tags = {tag.strip().lower() for tag in tags}
+            normalized_filter = {tag.strip().lower() for tag in self.tags_filter} if self.tags_filter else set()
+
+            if self.tags_filter:
+                if not normalized_tags & normalized_filter:
+                    continue
+
+            title_el = entry.find("{http://www.w3.org/2005/Atom}title")
+            content_el = entry.find("{http://www.w3.org/2005/Atom}content")
+            summary_el = entry.find("{http://www.w3.org/2005/Atom}summary")
+            pub_date_el = entry.find("{http://www.w3.org/2005/Atom}published")
+
+            title = title_el.text.strip() if title_el is not None and title_el.text else ""
+            content = content_el.text.strip() if content_el is not None and content_el.text else ""
+            summary = summary_el.text.strip() if summary_el is not None and summary_el.text else ""
+            pub_date = pub_date_el.text.strip() if pub_date_el is not None and pub_date_el.text else ""
+
+            body = content if content else summary
+
+            full_text = f"{title}\n{pub_date}\n\n{body}".strip()
+            if full_text:
+                documents.append(Document(page_content=full_text))
+
+        print(f"[AtomXMLLoader] Loaded {len(documents)} entries from Atom feed.")
+        return documents
+
 # ========== Loader Dispatcher ==========
 def detect_and_load_text(file_path: str, pdf_password: str = None) -> list[Document] | None:
     ext = os.path.splitext(file_path)[-1].lower()
 
     if ext == ".pdf":
         loader = PyPDFLoaderWithPassword(file_path, password=pdf_password)
+
+    elif ext == ".atom":
+        if AtomXMLLoader.is_atom_feed(file_path):
+            raw_tags = os.getenv("TAGS", "")
+            tags_filter = [tag.strip() for tag in raw_tags.split(",") if tag.strip()]
+            loader = AtomXMLLoader(file_path, tags_filter=tags_filter)
+        else:
+            print(f"[INFO] .atom file not recognized: {file_path}")
+            return []
 
     elif ext == ".xml":
         if WordPressXMLLoader.is_wordpress_export(file_path):
