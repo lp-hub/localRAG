@@ -9,8 +9,7 @@ ROTATING_LOG_FILE = "rag_errors.log"
 MANUAL_LOG_FILE = "log.txt"
 LOG_FILENAME = os.path.join(os.path.dirname(__file__), LOG_DIR, ROTATING_LOG_FILE)
 
-# Create logs/ directory if it doesn't exist
-os.makedirs(LOG_DIR, exist_ok=True)
+os.makedirs(LOG_DIR, exist_ok=True) # create logs/ directory if it doesn't exist
 
 # ========== Rotating File Logger ==========
 handler = RotatingFileHandler(
